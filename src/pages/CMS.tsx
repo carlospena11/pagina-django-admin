@@ -18,7 +18,7 @@ const CMS: React.FC = () => {
       case 'media':
         return <MediaManager />;
       case 'editor':
-        return <ContentEditor />;
+        return <ContentEditor onNavigate={setCurrentView} />;
       default:
         return <Dashboard onNavigate={setCurrentView} />;
     }

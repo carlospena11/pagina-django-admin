@@ -1,320 +1,235 @@
 
 import React, { useState } from 'react';
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Separator } from '@/components/ui/separator';
 import { 
   Save, 
   Eye, 
-  Bold,
-  Italic,
-  Underline,
-  List,
-  Link,
-  Image,
-  Quote,
-  Code,
-  Undo,
-  Redo
+  FileText, 
+  Calendar, 
+  User,
+  Globe,
+  Edit3,
+  Settings
 } from 'lucide-react';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 
-interface ContentItem {
-  id: string;
-  title: string;
-  slug: string;
-  content: string;
-  status: 'published' | 'draft' | 'review';
-  type: 'page' | 'post' | 'article';
-  author: string;
-  lastModified: string;
-  featuredImage?: string;
+interface ContentEditorProps {
+  onNavigate?: (view: string) => void;
 }
 
-const mockContent: ContentItem = {
-  id: '1',
-  title: 'Página de Inicio',
-  slug: 'home',
-  content: `# Bienvenido a nuestro sitio web
+export const ContentEditor: React.FC<ContentEditorProps> = ({ onNavigate }) => {
+  const [title, setTitle] = useState('Página de Inicio');
+  const [content, setContent] = useState(`<h1>Bienvenido a Nuestro Sitio Web</h1>
 
-Esta es la página principal de nuestro sitio web. Aquí puedes encontrar información sobre nuestros servicios y productos.
+<p>Esta es una página de ejemplo creada con nuestro editor de contenido. Aquí puedes escribir y formatear el contenido de tu sitio web.</p>
 
-## Nuestros Servicios
+<h2>Características Principales</h2>
+<ul>
+  <li>Editor de contenido intuitivo</li>
+  <li>Vista previa en tiempo real</li>
+  <li>Gestión de medios integrada</li>
+  <li>SEO optimizado</li>
+</ul>
 
-Ofrecemos una amplia gama de servicios para satisfacer las necesidades de nuestros clientes:
-
-- Desarrollo web
-- Diseño gráfico
-- Marketing digital
-- Consultoría tecnológica
-
-## ¿Por qué elegirnos?
-
-Somos un equipo de profesionales comprometidos con la excelencia y la innovación. Nuestro objetivo es ayudar a nuestros clientes a alcanzar sus metas.
-
-### Contacto
-
-Si tienes alguna pregunta o deseas más información, no dudes en contactarnos.`,
-  status: 'draft',
-  type: 'page',
-  author: 'Admin',
-  lastModified: '2024-01-15T10:30:00Z',
-  featuredImage: 'https://images.unsplash.com/photo-1649972904349-6e44c42644a7'
-};
-
-export const ContentEditor: React.FC = () => {
-  const [content, setContent] = useState<ContentItem>(mockContent);
-  const [previewMode, setPreviewMode] = useState(false);
+<p>Puedes incluir imágenes, enlaces y cualquier otro contenido HTML que necesites para tu sitio web.</p>`);
+  const [slug, setSlug] = useState('inicio');
+  const [status, setStatus] = useState('Borrador');
 
   const handleSave = () => {
-    console.log('Saving content:', content);
-    // Aquí se implementaría la lógica para guardar el contenido
+    console.log('Guardando contenido...', { title, content, slug, status });
+    // Aquí iría la lógica para guardar el contenido
   };
 
-  const handleStatusChange = (newStatus: string) => {
-    setContent(prev => ({
-      ...prev,
-      status: newStatus as 'published' | 'draft' | 'review'
-    }));
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'published':
-        return 'bg-green-100 text-green-800';
-      case 'draft':
-        return 'bg-yellow-100 text-yellow-800';
-      case 'review':
-        return 'bg-blue-100 text-blue-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
+  const handlePreview = () => {
+    // Aquí iría la lógica para mostrar la vista previa
+    if (onNavigate) {
+      onNavigate('preview');
     }
   };
 
-  const renderPreview = () => {
-    const lines = content.content.split('\n');
-    return (
-      <div className="prose max-w-none">
-        {lines.map((line, index) => {
-          if (line.startsWith('# ')) {
-            return <h1 key={index} className="text-3xl font-bold mb-4">{line.substring(2)}</h1>;
-          }
-          if (line.startsWith('## ')) {
-            return <h2 key={index} className="text-2xl font-semibold mb-3 mt-6">{line.substring(3)}</h2>;
-          }
-          if (line.startsWith('### ')) {
-            return <h3 key={index} className="text-xl font-medium mb-2 mt-4">{line.substring(4)}</h3>;
-          }
-          if (line.startsWith('- ')) {
-            return <li key={index} className="ml-4">{line.substring(2)}</li>;
-          }
-          if (line.trim() === '') {
-            return <br key={index} />;
-          }
-          return <p key={index} className="mb-4">{line}</p>;
-        })}
-      </div>
-    );
+  const handlePublish = () => {
+    setStatus('Publicada');
+    handleSave();
   };
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-3xl font-bold text-gray-900">Editor de Contenido</h2>
-          <p className="text-gray-600">Crea y edita el contenido de tu sitio web</p>
+          <h1 className="text-3xl font-bold text-gray-900">Editor de Contenido</h1>
+          <p className="text-gray-500 mt-1">Crea y edita el contenido de tus páginas</p>
         </div>
         <div className="flex gap-2">
-          <Button 
-            variant={previewMode ? 'default' : 'outline'} 
-            onClick={() => setPreviewMode(!previewMode)}
-          >
-            <Eye className="w-4 h-4 mr-2" />
-            {previewMode ? 'Editar' : 'Vista Previa'}
+          <Button variant="outline" onClick={handlePreview} className="flex items-center gap-2">
+            <Eye className="w-4 h-4" />
+            Vista Previa
           </Button>
-          <Button onClick={handleSave}>
-            <Save className="w-4 h-4 mr-2" />
+          <Button variant="outline" onClick={handleSave} className="flex items-center gap-2">
+            <Save className="w-4 h-4" />
             Guardar
+          </Button>
+          <Button onClick={handlePublish} className="flex items-center gap-2">
+            <Globe className="w-4 h-4" />
+            Publicar
           </Button>
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Editor Principal */}
-        <div className="lg:col-span-2">
-          <Card className="p-6">
-            {!previewMode ? (
-              <div className="space-y-4">
-                {/* Toolbar */}
-                <div className="flex flex-wrap gap-2 p-2 border-b">
-                  <Button size="sm" variant="outline">
-                    <Bold className="w-4 h-4" />
-                  </Button>
-                  <Button size="sm" variant="outline">
-                    <Italic className="w-4 h-4" />
-                  </Button>
-                  <Button size="sm" variant="outline">
-                    <Underline className="w-4 h-4" />
-                  </Button>
-                  <div className="w-px h-6 bg-gray-300 mx-1" />
-                  <Button size="sm" variant="outline">
-                    <List className="w-4 h-4" />
-                  </Button>
-                  <Button size="sm" variant="outline">
-                    <Quote className="w-4 h-4" />
-                  </Button>
-                  <Button size="sm" variant="outline">
-                    <Code className="w-4 h-4" />
-                  </Button>
-                  <div className="w-px h-6 bg-gray-300 mx-1" />
-                  <Button size="sm" variant="outline">
-                    <Link className="w-4 h-4" />
-                  </Button>
-                  <Button size="sm" variant="outline">
-                    <Image className="w-4 h-4" />
-                  </Button>
-                  <div className="w-px h-6 bg-gray-300 mx-1" />
-                  <Button size="sm" variant="outline">
-                    <Undo className="w-4 h-4" />
-                  </Button>
-                  <Button size="sm" variant="outline">
-                    <Redo className="w-4 h-4" />
-                  </Button>
-                </div>
-
-                {/* Title */}
-                <div>
-                  <label className="block text-sm font-medium mb-2">Título</label>
-                  <Input
-                    value={content.title}
-                    onChange={(e) => setContent(prev => ({ ...prev, title: e.target.value }))}
-                    placeholder="Título del contenido"
-                    className="text-lg font-semibold"
-                  />
-                </div>
-
-                {/* Slug */}
-                <div>
-                  <label className="block text-sm font-medium mb-2">URL (Slug)</label>
-                  <Input
-                    value={content.slug}
-                    onChange={(e) => setContent(prev => ({ ...prev, slug: e.target.value }))}
-                    placeholder="url-del-contenido"
-                  />
-                </div>
-
-                {/* Content */}
-                <div>
-                  <label className="block text-sm font-medium mb-2">Contenido</label>
-                  <Textarea
-                    value={content.content}
-                    onChange={(e) => setContent(prev => ({ ...prev, content: e.target.value }))}
-                    placeholder="Escribe tu contenido aquí..."
-                    className="min-h-96 font-mono"
-                  />
-                </div>
+        <div className="lg:col-span-2 space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Edit3 className="w-5 h-5" />
+                Contenido
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div>
+                <label className="text-sm font-medium text-gray-700 mb-2 block">
+                  Título de la Página
+                </label>
+                <Input
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  placeholder="Ingresa el título de la página"
+                  className="text-lg font-semibold"
+                />
               </div>
-            ) : (
-              <div className="min-h-96">
-                <h1 className="text-2xl font-bold mb-4 text-center">Vista Previa</h1>
-                {renderPreview()}
+              
+              <div>
+                <label className="text-sm font-medium text-gray-700 mb-2 block">
+                  Contenido HTML
+                </label>
+                <Textarea
+                  value={content}
+                  onChange={(e) => setContent(e.target.value)}
+                  placeholder="Escribe tu contenido aquí..."
+                  className="min-h-[400px] font-mono text-sm"
+                />
               </div>
-            )}
+            </CardContent>
+          </Card>
+
+          {/* Vista Previa */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Eye className="w-5 h-5" />
+                Vista Previa
+              </CardTitle>
+              <CardDescription>
+                Así se verá tu contenido en el sitio web
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div 
+                className="prose max-w-none border rounded-lg p-6 bg-white min-h-[300px]"
+                dangerouslySetInnerHTML={{ __html: content }}
+              />
+            </CardContent>
           </Card>
         </div>
 
         {/* Panel Lateral */}
         <div className="space-y-6">
-          {/* Estado y Configuración */}
-          <Card className="p-4">
-            <h3 className="font-semibold mb-4">Configuración</h3>
-            <div className="space-y-4">
+          {/* Configuración de Página */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Settings className="w-5 h-5" />
+                Configuración
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
               <div>
-                <label className="block text-sm font-medium mb-2">Estado</label>
-                <Select value={content.status} onValueChange={handleStatusChange}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="draft">Borrador</SelectItem>
-                    <SelectItem value="review">En Revisión</SelectItem>
-                    <SelectItem value="published">Publicado</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-2">Tipo</label>
-                <Select value={content.type} onValueChange={(value) => setContent(prev => ({ ...prev, type: value as any }))}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="page">Página</SelectItem>
-                    <SelectItem value="post">Entrada</SelectItem>
-                    <SelectItem value="article">Artículo</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="flex items-center justify-between">
-                <span className="text-sm">Estado actual:</span>
-                <Badge className={getStatusColor(content.status)}>
-                  {content.status === 'published' ? 'Publicado' : 
-                   content.status === 'draft' ? 'Borrador' : 'En Revisión'}
+                <label className="text-sm font-medium text-gray-700 mb-2 block">
+                  Estado
+                </label>
+                <Badge 
+                  className={
+                    status === 'Publicada' 
+                      ? 'bg-green-100 text-green-800' 
+                      : 'bg-yellow-100 text-yellow-800'
+                  }
+                  variant="secondary"
+                >
+                  {status}
                 </Badge>
               </div>
-            </div>
-          </Card>
-
-          {/* Imagen Destacada */}
-          <Card className="p-4">
-            <h3 className="font-semibold mb-4">Imagen Destacada</h3>
-            {content.featuredImage ? (
-              <div className="space-y-2">
-                <img
-                  src={content.featuredImage}
-                  alt="Imagen destacada"
-                  className="w-full h-32 object-cover rounded"
+              
+              <div>
+                <label className="text-sm font-medium text-gray-700 mb-2 block">
+                  URL Slug
+                </label>
+                <Input
+                  value={slug}
+                  onChange={(e) => setSlug(e.target.value)}
+                  placeholder="url-de-la-pagina"
                 />
-                <Button variant="outline" size="sm" className="w-full">
-                  Cambiar Imagen
-                </Button>
+                <p className="text-xs text-gray-500 mt-1">
+                  La URL será: /pages/{slug}
+                </p>
               </div>
-            ) : (
-              <Button variant="outline" className="w-full">
-                <Image className="w-4 h-4 mr-2" />
-                Añadir Imagen
-              </Button>
-            )}
+            </CardContent>
           </Card>
 
-          {/* Información */}
-          <Card className="p-4">
-            <h3 className="font-semibold mb-4">Información</h3>
-            <div className="space-y-2 text-sm">
-              <div className="flex justify-between">
-                <span className="text-gray-600">Autor:</span>
-                <span>{content.author}</span>
+          {/* Información de la Página */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <FileText className="w-5 h-5" />
+                Información
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="flex items-center gap-2 text-sm text-gray-600">
+                <Calendar className="w-4 h-4" />
+                <span>Creada: 15 Nov 2024</span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">Última modificación:</span>
-                <span>{new Date(content.lastModified).toLocaleDateString()}</span>
+              <div className="flex items-center gap-2 text-sm text-gray-600">
+                <Calendar className="w-4 h-4" />
+                <span>Modificada: Hace 10 min</span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">Palabras:</span>
-                <span>{content.content.split(' ').length}</span>
+              <div className="flex items-center gap-2 text-sm text-gray-600">
+                <User className="w-4 h-4" />
+                <span>Autor: Admin</span>
               </div>
-            </div>
+              
+              <Separator />
+              
+              <div className="text-sm text-gray-600">
+                <p className="font-medium mb-1">Estadísticas:</p>
+                <p>Palabras: {content.replace(/<[^>]*>/g, '').split(' ').length}</p>
+                <p>Caracteres: {content.replace(/<[^>]*>/g, '').length}</p>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Acciones Rápidas */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Acciones Rápidas</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              <Button variant="outline" className="w-full justify-start" onClick={() => onNavigate?.('media')}>
+                <FileText className="w-4 h-4 mr-2" />
+                Insertar Imagen
+              </Button>
+              <Button variant="outline" className="w-full justify-start" onClick={() => onNavigate?.('pages')}>
+                <FileText className="w-4 h-4 mr-2" />
+                Ver Todas las Páginas
+              </Button>
+              <Button variant="outline" className="w-full justify-start">
+                <Globe className="w-4 h-4 mr-2" />
+                Ver en Sitio Web
+              </Button>
+            </CardContent>
           </Card>
         </div>
       </div>
