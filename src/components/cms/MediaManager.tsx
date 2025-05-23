@@ -238,7 +238,7 @@ export const MediaManager: React.FC = () => {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
                     <p className="font-medium truncate">{item.name}</p>
-                    <Badge className={getTypeColor(item.type)} size="sm">
+                    <Badge className={getTypeColor(item.type)}>
                       {item.type}
                     </Badge>
                   </div>
