@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { getSupabase, isSupabaseConfigured, UserProfile, UserRole, testSupabaseConnection } from '@/lib/supabase';
@@ -9,7 +10,7 @@ interface AuthContextType {
   loading: boolean;
   isConfigured: boolean;
   signIn: (email: string, password: string) => Promise<{ error?: string }>;
-  signUp: (email: string, password: string, fullName?: string) => Promise<{ error?: string }>;
+  signUp: (email: string, password: string, fullName?: string, role?: UserRole) => Promise<{ error?: string }>;
   signOut: () => Promise<void>;
   hasRole: (requiredRole: UserRole) => boolean;
   canEdit: () => boolean;
@@ -43,12 +44,33 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [isConfigured] = useState(isSupabaseConfigured());
 
+  const fetchUserProfile = async (userId: string) => {
+    try {
+      console.log('📊 Obteniendo perfil de usuario:', userId);
+      const supabase = getSupabase();
+      const { data, error } = await supabase
+        .from('user_profiles')
+        .select('*')
+        .eq('id', userId)
+        .single();
+
+      if (error) {
+        console.error('❌ Error obteniendo perfil:', error);
+        return;
+      }
+
+      console.log('✅ Perfil obtenido:', data);
+      setProfile(data);
+    } catch (error) {
+      console.error('❌ Error inesperado obteniendo perfil:', error);
+    }
+  };
+
   useEffect(() => {
     console.log('🔍 AuthProvider: Inicializando...');
     console.log('🔍 Supabase configurado:', isConfigured);
     
     const initializeAuth = async () => {
-      // If Supabase is not configured, don't try to initialize auth
       if (!isConfigured) {
         console.log('❌ Supabase no está configurado');
         setLoading(false);
@@ -58,7 +80,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       console.log('✅ Inicializando cliente Supabase...');
       
       try {
-        // Test connection
         const connectionWorks = await testSupabaseConnection();
         if (!connectionWorks) {
           console.error('❌ Conexión con Supabase falló');
@@ -82,20 +103,20 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         
         if (sessionData.session?.user) {
           console.log('👤 Usuario encontrado en sesión:', sessionData.session.user.email);
-          // Note: fetchUserProfile removed as user_profiles table doesn't exist yet
+          await fetchUserProfile(sessionData.session.user.id);
         } else {
           console.log('👤 No hay usuario en la sesión');
         }
 
         // Listen for auth changes
-        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-          console.log('🔄 Cambio de estado de autenticación:', { event: _event, session: !!session });
+        const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+          console.log('🔄 Cambio de estado de autenticación:', { event, session: !!session });
           setSession(session);
           setUser(session?.user ?? null);
           
           if (session?.user) {
             console.log('👤 Usuario autenticado:', session.user.email);
-            // Note: fetchUserProfile removed as user_profiles table doesn't exist yet
+            await fetchUserProfile(session.user.id);
           } else {
             console.log('👤 Usuario desautenticado');
             setProfile(null);
@@ -104,7 +125,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
         setLoading(false);
 
-        // Cleanup function
         return () => {
           console.log('🧹 Limpiando suscripción de autenticación');
           subscription.unsubscribe();
@@ -144,12 +164,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  const signUp = async (email: string, password: string, fullName?: string) => {
+  const signUp = async (email: string, password: string, fullName?: string, role: UserRole = 'viewer') => {
     if (!isConfigured) {
       return { error: 'Supabase no está configurado' };
     }
 
-    console.log('📝 Intentando registrar usuario:', email);
+    console.log('📝 Intentando registrar usuario:', email, 'con rol:', role);
     try {
       const supabase = getSupabase();
       const { error } = await supabase.auth.signUp({
@@ -158,6 +178,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         options: {
           data: {
             full_name: fullName,
+            role: role,
           },
         },
       });

@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { Eye, EyeOff, Lock, Mail, User } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { AdminUserCreator } from './AdminUserCreator';
 
 export const LoginForm: React.FC = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -16,6 +17,7 @@ export const LoginForm: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [showAdminCreator, setShowAdminCreator] = useState(false);
 
   const { signIn, signUp } = useAuth();
 
@@ -41,6 +43,23 @@ export const LoginForm: React.FC = () => {
       setLoading(false);
     }
   };
+
+  if (showAdminCreator) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
+        <div className="w-full max-w-md space-y-4">
+          <AdminUserCreator />
+          <Button 
+            variant="outline" 
+            onClick={() => setShowAdminCreator(false)}
+            className="w-full"
+          >
+            Volver al Login
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
@@ -133,7 +152,7 @@ export const LoginForm: React.FC = () => {
 
           <Separator className="my-4" />
 
-          <div className="text-center">
+          <div className="space-y-2">
             <button
               type="button"
               onClick={() => {
@@ -143,9 +162,17 @@ export const LoginForm: React.FC = () => {
                 setPassword('');
                 setFullName('');
               }}
-              className="text-blue-600 hover:text-blue-800 text-sm"
+              className="text-blue-600 hover:text-blue-800 text-sm w-full text-center"
             >
               {isLogin ? '¿No tienes cuenta? Regístrate' : '¿Ya tienes cuenta? Inicia sesión'}
+            </button>
+            
+            <button
+              type="button"
+              onClick={() => setShowAdminCreator(true)}
+              className="text-green-600 hover:text-green-800 text-sm w-full text-center"
+            >
+              Crear Usuario Admin (cgpena)
             </button>
           </div>
         </CardContent>
