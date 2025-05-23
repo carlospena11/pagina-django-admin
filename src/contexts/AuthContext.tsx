@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { getSupabase, isSupabaseConfigured, UserProfile, UserRole, testSupabaseConnection } from '@/lib/supabase';
@@ -60,14 +59,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }
 
       console.log('✅ Perfil obtenido:', data);
-      // Convert the data to UserProfile type
+      // Convert the data to UserProfile type with proper type casting
       setProfile({
-        id: data.id,
-        email: data.email,
+        id: String(data.id),
+        email: String(data.email),
         role: data.role as UserRole,
-        full_name: data.full_name || undefined,
-        avatar_url: data.avatar_url || undefined,
-        created_at: data.created_at
+        full_name: data.full_name ? String(data.full_name) : undefined,
+        avatar_url: data.avatar_url ? String(data.avatar_url) : undefined,
+        created_at: String(data.created_at)
       });
     } catch (error) {
       console.error('❌ Error inesperado obteniendo perfil:', error);
