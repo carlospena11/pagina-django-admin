@@ -20,7 +20,7 @@ export const AdminUserCreator: React.FC = () => {
 
     try {
       // Usar un email válido con dominio real
-      const result = await signUp('admin@example.com', '12345678', 'Administrador', 'admin');
+      const result = await signUp('admin@gmail.com', '12345678', 'Administrador', 'admin');
       
       if (result.error) {
         setError(result.error);
@@ -29,6 +29,7 @@ export const AdminUserCreator: React.FC = () => {
       }
     } catch (err) {
       setError('Error inesperado al crear usuario');
+      console.error('Error creating admin user:', err);
     } finally {
       setLoading(false);
     }
@@ -48,7 +49,7 @@ export const AdminUserCreator: React.FC = () => {
       <CardContent className="space-y-4">
         <div className="space-y-2">
           <Label>Email</Label>
-          <Input value="admin@example.com" disabled />
+          <Input value="admin@gmail.com" disabled />
         </div>
         
         <div className="space-y-2">
@@ -69,7 +70,7 @@ export const AdminUserCreator: React.FC = () => {
 
         {success && (
           <div className="text-green-600 text-sm p-2 bg-green-50 rounded">
-            ✅ Usuario admin creado exitosamente. Puedes iniciar sesión con admin@example.com
+            ✅ Usuario admin creado exitosamente. Puedes iniciar sesión con admin@gmail.com
           </div>
         )}
 
