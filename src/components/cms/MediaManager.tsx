@@ -6,14 +6,15 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { 
   Plus, 
-  Star, 
+  Search, 
   Upload, 
-  Star,
-  Star,
-  Star,
+  Eye,
+  Grid,
+  List,
   Download,
-  Star,
-  Filter
+  Trash2,
+  Filter,
+  MoreHorizontal
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -72,7 +73,7 @@ export const MediaManager: React.FC = () => {
       <Card className="p-4">
         <div className="flex flex-col sm:flex-row gap-4 items-center">
           <div className="relative flex-1">
-            <Star className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
             <Input
               placeholder="Buscar archivos..."
               value={searchTerm}
@@ -114,14 +115,14 @@ export const MediaManager: React.FC = () => {
               size="sm"
               onClick={() => setViewMode('grid')}
             >
-              <Star className="w-4 h-4" />
+              <Grid className="w-4 h-4" />
             </Button>
             <Button
               variant={viewMode === 'list' ? 'default' : 'outline'}
               size="sm"
               onClick={() => setViewMode('list')}
             >
-              <Star className="w-4 h-4" />
+              <List className="w-4 h-4" />
             </Button>
           </div>
         </div>
@@ -150,7 +151,7 @@ export const MediaManager: React.FC = () => {
                   <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 transition-opacity flex items-center justify-center opacity-0 group-hover:opacity-100">
                     <div className="flex gap-2">
                       <Button size="sm" variant="secondary">
-                        <Star className="w-4 h-4" />
+                        <Eye className="w-4 h-4" />
                       </Button>
                       <Button size="sm" variant="secondary">
                         <Download className="w-4 h-4" />
@@ -160,7 +161,7 @@ export const MediaManager: React.FC = () => {
                         variant="destructive"
                         onClick={() => handleDeleteMedia(item.id)}
                       >
-                        <Star className="w-4 h-4" />
+                        <Trash2 className="w-4 h-4" />
                       </Button>
                     </div>
                   </div>
@@ -215,7 +216,7 @@ export const MediaManager: React.FC = () => {
                 
                 <div className="flex gap-2">
                   <Button size="sm" variant="outline">
-                    <Star className="w-4 h-4" />
+                    <Eye className="w-4 h-4" />
                   </Button>
                   <Button size="sm" variant="outline">
                     <Download className="w-4 h-4" />
@@ -223,7 +224,7 @@ export const MediaManager: React.FC = () => {
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button size="sm" variant="outline">
-                        <Star className="w-4 h-4" />
+                        <MoreHorizontal className="w-4 h-4" />
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent>

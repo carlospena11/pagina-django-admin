@@ -5,12 +5,12 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { 
   FileText, 
-  Star, 
+  Image, 
   Users, 
   BarChart3, 
   Plus,
   Edit,
-  Star,
+  Eye,
   Calendar
 } from 'lucide-react';
 import { useCMS } from '@/contexts/CMSContext';
@@ -38,7 +38,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
       title: "Imágenes",
       value: media.length.toString(),
       description: "Total en la biblioteca",
-      icon: Star,
+      icon: Image,
       color: "bg-green-500"
     },
     {
@@ -108,7 +108,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
             Nueva Página
           </Button>
           <Button variant="outline" onClick={() => handleNavigation('media')} className="flex items-center gap-2">
-            <Star className="w-4 h-4" />
+            <Image className="w-4 h-4" />
             Subir Imagen
           </Button>
         </div>
@@ -165,7 +165,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
                       <Edit className="w-4 h-4" />
                     </Button>
                     <Button size="sm" variant="outline">
-                      <Star className="w-4 h-4" />
+                      <Eye className="w-4 h-4" />
                     </Button>
                   </div>
                 </div>
@@ -180,7 +180,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Star className="w-5 h-5" />
+              <Image className="w-5 h-5" />
               Galería de Imágenes
             </CardTitle>
             <CardDescription>
