@@ -30,6 +30,10 @@ interface Page {
   views: number;
 }
 
+interface PageManagerProps {
+  onNavigate?: (view: string) => void;
+}
+
 const mockPages: Page[] = [
   {
     id: '1',
@@ -69,7 +73,7 @@ const mockPages: Page[] = [
   }
 ];
 
-export const PageManager: React.FC = () => {
+export const PageManager: React.FC<PageManagerProps> = ({ onNavigate }) => {
   const [pages, setPages] = useState<Page[]>(mockPages);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState<string>('all');
@@ -106,6 +110,18 @@ export const PageManager: React.FC = () => {
     }
   };
 
+  const handleNewPage = () => {
+    if (onNavigate) {
+      onNavigate('editor');
+    }
+  };
+
+  const handleEditPage = () => {
+    if (onNavigate) {
+      onNavigate('editor');
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -114,7 +130,7 @@ export const PageManager: React.FC = () => {
           <h2 className="text-3xl font-bold text-gray-900">Gestión de Páginas</h2>
           <p className="text-gray-600">Administra todas las páginas de tu sitio web</p>
         </div>
-        <Button className="flex items-center gap-2">
+        <Button onClick={handleNewPage} className="flex items-center gap-2">
           <Plus className="w-4 h-4" />
           Nueva Página
         </Button>
@@ -197,7 +213,7 @@ export const PageManager: React.FC = () => {
                       <Button variant="outline" size="sm">
                         <Eye className="w-4 h-4" />
                       </Button>
-                      <Button variant="outline" size="sm">
+                      <Button variant="outline" size="sm" onClick={handleEditPage}>
                         <Edit className="w-4 h-4" />
                       </Button>
                       <DropdownMenu>

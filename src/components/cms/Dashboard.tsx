@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -77,6 +76,13 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
     }
   };
 
+  const handleNewPage = () => {
+    // Navigate directly to the editor for creating a new page
+    if (onNavigate) {
+      onNavigate('editor');
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -85,7 +91,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
           <p className="text-gray-500 mt-1">Bienvenido al panel de administración</p>
         </div>
         <div className="flex gap-2">
-          <Button onClick={() => handleNavigation('pages')} className="flex items-center gap-2">
+          <Button onClick={handleNewPage} className="flex items-center gap-2">
             <Plus className="w-4 h-4" />
             Nueva Página
           </Button>

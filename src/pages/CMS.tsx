@@ -14,7 +14,7 @@ const CMS: React.FC = () => {
       case 'dashboard':
         return <Dashboard onNavigate={setCurrentView} />;
       case 'pages':
-        return <PageManager />;
+        return <PageManager onNavigate={setCurrentView} />;
       case 'media':
         return <MediaManager />;
       case 'editor':
