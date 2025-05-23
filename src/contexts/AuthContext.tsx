@@ -1,13 +1,14 @@
 
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { User, Session } from '@supabase/supabase-js';
-import { supabase, UserProfile, UserRole } from '@/lib/supabase';
+import { getSupabase, isSupabaseConfigured, UserProfile, UserRole } from '@/lib/supabase';
 
 interface AuthContextType {
   user: User | null;
   profile: UserProfile | null;
   session: Session | null;
   loading: boolean;
+  isConfigured: boolean;
   signIn: (email: string, password: string) => Promise<{ error?: string }>;
   signUp: (email: string, password: string, fullName?: string) => Promise<{ error?: string }>;
   signOut: () => Promise<void>;
@@ -41,8 +42,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isConfigured] = useState(isSupabaseConfigured());
 
   useEffect(() => {
+    // If Supabase is not configured, don't try to initialize auth
+    if (!isConfigured) {
+      setLoading(false);
+      return;
+    }
+
+    const supabase = getSupabase();
+
     // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
@@ -67,10 +77,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     });
 
     return () => subscription.unsubscribe();
-  }, []);
+  }, [isConfigured]);
 
   const fetchUserProfile = async (userId: string) => {
+    if (!isConfigured) return;
+    
     try {
+      const supabase = getSupabase();
       const { data, error } = await supabase
         .from('user_profiles')
         .select('*')
@@ -92,7 +105,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   const createDefaultProfile = async (userId: string) => {
+    if (!isConfigured) return;
+
     try {
+      const supabase = getSupabase();
       const { data: userData } = await supabase.auth.getUser();
       const defaultProfile: Omit<UserProfile, 'created_at'> = {
         id: userId,
@@ -118,7 +134,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   const signIn = async (email: string, password: string) => {
+    if (!isConfigured) {
+      return { error: 'Supabase no está configurado' };
+    }
+
     try {
+      const supabase = getSupabase();
       const { error } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -135,7 +156,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   const signUp = async (email: string, password: string, fullName?: string) => {
+    if (!isConfigured) {
+      return { error: 'Supabase no está configurado' };
+    }
+
     try {
+      const supabase = getSupabase();
       const { error } = await supabase.auth.signUp({
         email,
         password,
@@ -157,6 +183,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   const signOut = async () => {
+    if (!isConfigured) return;
+    
+    const supabase = getSupabase();
     await supabase.auth.signOut();
   };
 
@@ -178,6 +207,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     profile,
     session,
     loading,
+    isConfigured,
     signIn,
     signUp,
     signOut,
