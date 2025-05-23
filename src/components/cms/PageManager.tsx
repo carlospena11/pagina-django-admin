@@ -6,12 +6,12 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { 
   Plus, 
-  Search, 
+  Star, 
   Edit, 
-  Trash2, 
-  Eye, 
+  Star, 
+  Star,
   Filter,
-  MoreVertical
+  Star
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -19,62 +19,14 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-
-interface Page {
-  id: string;
-  title: string;
-  slug: string;
-  status: 'published' | 'draft' | 'review';
-  author: string;
-  lastModified: string;
-  views: number;
-}
+import { useCMS } from '@/contexts/CMSContext';
 
 interface PageManagerProps {
   onNavigate?: (view: string) => void;
 }
 
-const mockPages: Page[] = [
-  {
-    id: '1',
-    title: 'Página de Inicio',
-    slug: 'home',
-    status: 'published',
-    author: 'Admin',
-    lastModified: '2024-01-15',
-    views: 1250
-  },
-  {
-    id: '2',
-    title: 'Sobre Nosotros',
-    slug: 'about',
-    status: 'draft',
-    author: 'Editor',
-    lastModified: '2024-01-14',
-    views: 890
-  },
-  {
-    id: '3',
-    title: 'Contacto',
-    slug: 'contact',
-    status: 'published',
-    author: 'Admin',
-    lastModified: '2024-01-13',
-    views: 567
-  },
-  {
-    id: '4',
-    title: 'Blog',
-    slug: 'blog',
-    status: 'review',
-    author: 'Writer',
-    lastModified: '2024-01-12',
-    views: 2340
-  }
-];
-
 export const PageManager: React.FC<PageManagerProps> = ({ onNavigate }) => {
-  const [pages, setPages] = useState<Page[]>(mockPages);
+  const { pages, deletePage } = useCMS();
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState<string>('all');
 
@@ -122,6 +74,12 @@ export const PageManager: React.FC<PageManagerProps> = ({ onNavigate }) => {
     }
   };
 
+  const handleDeletePage = (id: string) => {
+    if (confirm('¿Estás seguro de que quieres eliminar esta página?')) {
+      deletePage(id);
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -140,7 +98,7 @@ export const PageManager: React.FC<PageManagerProps> = ({ onNavigate }) => {
       <Card className="p-4">
         <div className="flex flex-col sm:flex-row gap-4">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+            <Star className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
             <Input
               placeholder="Buscar páginas..."
               value={searchTerm}
@@ -211,7 +169,7 @@ export const PageManager: React.FC<PageManagerProps> = ({ onNavigate }) => {
                   <td className="p-4">
                     <div className="flex justify-end gap-2">
                       <Button variant="outline" size="sm">
-                        <Eye className="w-4 h-4" />
+                        <Star className="w-4 h-4" />
                       </Button>
                       <Button variant="outline" size="sm" onClick={handleEditPage}>
                         <Edit className="w-4 h-4" />
@@ -219,13 +177,16 @@ export const PageManager: React.FC<PageManagerProps> = ({ onNavigate }) => {
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <Button variant="outline" size="sm">
-                            <MoreVertical className="w-4 h-4" />
+                            <Star className="w-4 h-4" />
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent>
                           <DropdownMenuItem>Duplicar</DropdownMenuItem>
-                          <DropdownMenuItem className="text-red-600">
-                            <Trash2 className="w-4 h-4 mr-2" />
+                          <DropdownMenuItem 
+                            className="text-red-600"
+                            onClick={() => handleDeletePage(page.id)}
+                          >
+                            <Star className="w-4 h-4 mr-2" />
                             Eliminar
                           </DropdownMenuItem>
                         </DropdownMenuContent>

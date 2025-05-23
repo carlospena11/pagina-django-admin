@@ -1,36 +1,44 @@
+
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { 
   FileText, 
-  Image, 
+  Star, 
   Users, 
   BarChart3, 
   Plus,
   Edit,
-  Eye,
+  Star,
   Calendar
 } from 'lucide-react';
+import { useCMS } from '@/contexts/CMSContext';
 
 interface DashboardProps {
   onNavigate?: (view: string) => void;
 }
 
 export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
+  const { pages, media } = useCMS();
+  
+  const publishedPages = pages.filter(page => page.status === 'published').length;
+  const draftPages = pages.filter(page => page.status === 'draft').length;
+  const totalViews = pages.reduce((sum, page) => sum + page.views, 0);
+  
   const stats = [
     {
       title: "Total de Páginas",
-      value: "12",
-      description: "3 publicadas, 9 borradores",
+      value: pages.length.toString(),
+      description: `${publishedPages} publicadas, ${draftPages} borradores`,
       icon: FileText,
       color: "bg-blue-500"
     },
     {
       title: "Imágenes",
-      value: "45",
+      value: media.length.toString(),
       description: "Total en la biblioteca",
-      icon: Image,
+      icon: Star,
       color: "bg-green-500"
     },
     {
@@ -42,31 +50,10 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
     },
     {
       title: "Visitas",
-      value: "1,234",
-      description: "Este mes",
+      value: totalViews.toLocaleString(),
+      description: "Total de visitas",
       icon: BarChart3,
       color: "bg-orange-500"
-    }
-  ];
-
-  const recentPages = [
-    {
-      title: "Página de Inicio",
-      status: "Publicada",
-      lastModified: "Hace 2 horas",
-      statusColor: "bg-green-100 text-green-800"
-    },
-    {
-      title: "Sobre Nosotros",
-      status: "Borrador",
-      lastModified: "Hace 1 día",
-      statusColor: "bg-yellow-100 text-yellow-800"
-    },
-    {
-      title: "Contacto",
-      status: "Pendiente",
-      lastModified: "Hace 3 días",
-      statusColor: "bg-blue-100 text-blue-800"
     }
   ];
 
@@ -77,9 +64,34 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
   };
 
   const handleNewPage = () => {
-    // Navigate directly to the editor for creating a new page
     if (onNavigate) {
       onNavigate('editor');
+    }
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'published':
+        return 'bg-green-100 text-green-800';
+      case 'draft':
+        return 'bg-yellow-100 text-yellow-800';
+      case 'review':
+        return 'bg-blue-100 text-blue-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  const getStatusText = (status: string) => {
+    switch (status) {
+      case 'published':
+        return 'Publicada';
+      case 'draft':
+        return 'Borrador';
+      case 'review':
+        return 'En Revisión';
+      default:
+        return status;
     }
   };
 
@@ -96,7 +108,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
             Nueva Página
           </Button>
           <Button variant="outline" onClick={() => handleNavigation('media')} className="flex items-center gap-2">
-            <Image className="w-4 h-4" />
+            <Star className="w-4 h-4" />
             Subir Imagen
           </Button>
         </div>
@@ -134,13 +146,13 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {recentPages.map((page, index) => (
-                <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
+              {pages.slice(0, 3).map((page) => (
+                <div key={page.id} className="flex items-center justify-between p-3 border rounded-lg">
                   <div className="flex-1">
                     <h4 className="font-medium">{page.title}</h4>
                     <div className="flex items-center gap-2 mt-1">
-                      <Badge className={page.statusColor} variant="secondary">
-                        {page.status}
+                      <Badge className={getStatusColor(page.status)} variant="secondary">
+                        {getStatusText(page.status)}
                       </Badge>
                       <span className="text-sm text-gray-500 flex items-center gap-1">
                         <Calendar className="w-3 h-3" />
@@ -153,7 +165,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
                       <Edit className="w-4 h-4" />
                     </Button>
                     <Button size="sm" variant="outline">
-                      <Eye className="w-4 h-4" />
+                      <Star className="w-4 h-4" />
                     </Button>
                   </div>
                 </div>
@@ -168,45 +180,28 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <BarChart3 className="w-5 h-5" />
-              Actividad Reciente
+              <Star className="w-5 h-5" />
+              Galería de Imágenes
             </CardTitle>
             <CardDescription>
-              Últimas acciones en el sistema
+              Últimas imágenes subidas
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              <div className="flex items-center gap-3 p-3 border rounded-lg">
-                <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                  <FileText className="w-4 h-4 text-blue-600" />
+            <div className="grid grid-cols-3 gap-2 mb-4">
+              {media.slice(0, 6).map((item) => (
+                <div key={item.id} className="aspect-square rounded-lg overflow-hidden">
+                  <img
+                    src={item.url}
+                    alt={item.alt || item.name}
+                    className="w-full h-full object-cover hover:scale-105 transition-transform cursor-pointer"
+                  />
                 </div>
-                <div className="flex-1">
-                  <p className="text-sm">Nueva página creada: "Servicios"</p>
-                  <p className="text-xs text-gray-500">Hace 30 minutos</p>
-                </div>
-              </div>
-              
-              <div className="flex items-center gap-3 p-3 border rounded-lg">
-                <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-                  <Image className="w-4 h-4 text-green-600" />
-                </div>
-                <div className="flex-1">
-                  <p className="text-sm">5 imágenes subidas</p>
-                  <p className="text-xs text-gray-500">Hace 1 hora</p>
-                </div>
-              </div>
-              
-              <div className="flex items-center gap-3 p-3 border rounded-lg">
-                <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
-                  <Users className="w-4 h-4 text-purple-600" />
-                </div>
-                <div className="flex-1">
-                  <p className="text-sm">Nuevo usuario registrado</p>
-                  <p className="text-xs text-gray-500">Hace 2 horas</p>
-                </div>
-              </div>
+              ))}
             </div>
+            <Button variant="outline" className="w-full" onClick={() => handleNavigation('media')}>
+              Ver Biblioteca Completa
+            </Button>
           </CardContent>
         </Card>
       </div>

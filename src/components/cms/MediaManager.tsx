@@ -6,13 +6,13 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { 
   Plus, 
-  Search, 
+  Star, 
   Upload, 
-  Grid3X3,
-  List,
-  Trash2,
+  Star,
+  Star,
+  Star,
   Download,
-  Eye,
+  Star,
   Filter
 } from 'lucide-react';
 import {
@@ -21,58 +21,10 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-
-interface MediaItem {
-  id: string;
-  name: string;
-  url: string;
-  type: 'image' | 'video' | 'document';
-  size: string;
-  uploadDate: string;
-  alt?: string;
-}
-
-const mockMedia: MediaItem[] = [
-  {
-    id: '1',
-    name: 'hero-image.jpg',
-    url: 'https://images.unsplash.com/photo-1649972904349-6e44c42644a7',
-    type: 'image',
-    size: '2.5 MB',
-    uploadDate: '2024-01-15',
-    alt: 'Hero image for homepage'
-  },
-  {
-    id: '2',
-    name: 'about-photo.jpg',
-    url: 'https://images.unsplash.com/photo-1488590528505-98d2b5aba04b',
-    type: 'image',
-    size: '1.8 MB',
-    uploadDate: '2024-01-14',
-    alt: 'About section photo'
-  },
-  {
-    id: '3',
-    name: 'team-photo.jpg',
-    url: 'https://images.unsplash.com/photo-1518770660439-4636190af475',
-    type: 'image',
-    size: '3.2 MB',
-    uploadDate: '2024-01-13',
-    alt: 'Team photo'
-  },
-  {
-    id: '4',
-    name: 'blog-image.jpg',
-    url: 'https://images.unsplash.com/photo-1461749280684-dccba630e2f6',
-    type: 'image',
-    size: '1.9 MB',
-    uploadDate: '2024-01-12',
-    alt: 'Blog post image'
-  }
-];
+import { useCMS } from '@/contexts/CMSContext';
 
 export const MediaManager: React.FC = () => {
-  const [media, setMedia] = useState<MediaItem[]>(mockMedia);
+  const { media, deleteMedia } = useCMS();
   const [searchTerm, setSearchTerm] = useState('');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [filterType, setFilterType] = useState<string>('all');
@@ -96,6 +48,12 @@ export const MediaManager: React.FC = () => {
     }
   };
 
+  const handleDeleteMedia = (id: string) => {
+    if (confirm('¿Estás seguro de que quieres eliminar este archivo?')) {
+      deleteMedia(id);
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -114,7 +72,7 @@ export const MediaManager: React.FC = () => {
       <Card className="p-4">
         <div className="flex flex-col sm:flex-row gap-4 items-center">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+            <Star className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
             <Input
               placeholder="Buscar archivos..."
               value={searchTerm}
@@ -156,14 +114,14 @@ export const MediaManager: React.FC = () => {
               size="sm"
               onClick={() => setViewMode('grid')}
             >
-              <Grid3X3 className="w-4 h-4" />
+              <Star className="w-4 h-4" />
             </Button>
             <Button
               variant={viewMode === 'list' ? 'default' : 'outline'}
               size="sm"
               onClick={() => setViewMode('list')}
             >
-              <List className="w-4 h-4" />
+              <Star className="w-4 h-4" />
             </Button>
           </div>
         </div>
@@ -192,13 +150,17 @@ export const MediaManager: React.FC = () => {
                   <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 transition-opacity flex items-center justify-center opacity-0 group-hover:opacity-100">
                     <div className="flex gap-2">
                       <Button size="sm" variant="secondary">
-                        <Eye className="w-4 h-4" />
+                        <Star className="w-4 h-4" />
                       </Button>
                       <Button size="sm" variant="secondary">
                         <Download className="w-4 h-4" />
                       </Button>
-                      <Button size="sm" variant="destructive">
-                        <Trash2 className="w-4 h-4" />
+                      <Button 
+                        size="sm" 
+                        variant="destructive"
+                        onClick={() => handleDeleteMedia(item.id)}
+                      >
+                        <Star className="w-4 h-4" />
                       </Button>
                     </div>
                   </div>
@@ -211,8 +173,11 @@ export const MediaManager: React.FC = () => {
                     </Badge>
                     <span className="text-xs text-gray-500">{item.size}</span>
                   </div>
-                  <p className="text-sm font-medium truncate">{item.name}</p>
+                  <p className="text-sm font-medium truncate" title={item.name}>{item.name}</p>
                   <p className="text-xs text-gray-500">{item.uploadDate}</p>
+                  {item.alt && (
+                    <p className="text-xs text-gray-400 mt-1 truncate" title={item.alt}>{item.alt}</p>
+                  )}
                 </div>
               </div>
             ))}
@@ -243,11 +208,14 @@ export const MediaManager: React.FC = () => {
                     </Badge>
                   </div>
                   <p className="text-sm text-gray-500">{item.size} • {item.uploadDate}</p>
+                  {item.alt && (
+                    <p className="text-xs text-gray-400 truncate">{item.alt}</p>
+                  )}
                 </div>
                 
                 <div className="flex gap-2">
                   <Button size="sm" variant="outline">
-                    <Eye className="w-4 h-4" />
+                    <Star className="w-4 h-4" />
                   </Button>
                   <Button size="sm" variant="outline">
                     <Download className="w-4 h-4" />
@@ -255,11 +223,14 @@ export const MediaManager: React.FC = () => {
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button size="sm" variant="outline">
-                        <Trash2 className="w-4 h-4" />
+                        <Star className="w-4 h-4" />
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent>
-                      <DropdownMenuItem className="text-red-600">
+                      <DropdownMenuItem 
+                        className="text-red-600"
+                        onClick={() => handleDeleteMedia(item.id)}
+                      >
                         Eliminar
                       </DropdownMenuItem>
                     </DropdownMenuContent>

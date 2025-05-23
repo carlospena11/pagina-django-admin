@@ -5,6 +5,7 @@ import { Dashboard } from '@/components/cms/Dashboard';
 import { PageManager } from '@/components/cms/PageManager';
 import { MediaManager } from '@/components/cms/MediaManager';
 import { ContentEditor } from '@/components/cms/ContentEditor';
+import { CMSProvider } from '@/contexts/CMSContext';
 
 const CMS: React.FC = () => {
   const [currentView, setCurrentView] = useState('dashboard');
@@ -25,9 +26,11 @@ const CMS: React.FC = () => {
   };
 
   return (
-    <CMSLayout currentView={currentView} onNavigate={setCurrentView}>
-      {renderContent()}
-    </CMSLayout>
+    <CMSProvider>
+      <CMSLayout currentView={currentView} onNavigate={setCurrentView}>
+        {renderContent()}
+      </CMSLayout>
+    </CMSProvider>
   );
 };
 
