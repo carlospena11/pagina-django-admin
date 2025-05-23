@@ -60,8 +60,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }
 
       console.log('✅ Perfil obtenido:', data);
-      // Convert the data to UserProfile type safely
-      setProfile(data as unknown as UserProfile);
+      // Convert the data to UserProfile type
+      setProfile({
+        id: data.id,
+        email: data.email,
+        role: data.role as UserRole,
+        full_name: data.full_name || undefined,
+        avatar_url: data.avatar_url || undefined,
+        created_at: data.created_at
+      });
     } catch (error) {
       console.error('❌ Error inesperado obteniendo perfil:', error);
     }
