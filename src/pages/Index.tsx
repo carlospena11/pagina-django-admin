@@ -1,10 +1,26 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Hotel } from 'lucide-react';
+import { testSupabaseConnection } from '@/lib/supabase';
 
 const Index = () => {
   console.log("Index component is rendering");
+  
+  useEffect(() => {
+    // Test Supabase connection when component mounts
+    const checkConnection = async () => {
+      console.log('🧪 Verificando conexión con Supabase desde Index...');
+      const isConnected = await testSupabaseConnection();
+      if (isConnected) {
+        console.log('✅ Conexión con Supabase verificada desde Index');
+      } else {
+        console.log('❌ Conexión con Supabase falló desde Index');
+      }
+    };
+    
+    checkConnection();
+  }, []);
   
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
