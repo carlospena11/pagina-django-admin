@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { getSupabase, isSupabaseConfigured, UserProfile, UserRole, testSupabaseConnection } from '@/lib/supabase';
@@ -60,7 +59,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }
 
       console.log('✅ Perfil obtenido:', data);
-      setProfile(data);
+      // Cast the data to UserProfile type since we know it matches the structure
+      setProfile(data as UserProfile);
     } catch (error) {
       console.error('❌ Error inesperado obteniendo perfil:', error);
     }
