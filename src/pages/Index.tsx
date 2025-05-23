@@ -2,7 +2,7 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Settings, FileText, BarChart3 } from 'lucide-react';
+import { Settings, FileText, BarChart3, Building } from 'lucide-react';
 
 const Index = () => {
   return (
@@ -18,6 +18,12 @@ const Index = () => {
               <span className="ml-2 text-xl font-bold text-gray-900">Mi Sitio Web</span>
             </div>
             <div className="flex gap-4">
+              <Button variant="outline" asChild>
+                <a href="/hilton">
+                  <Building className="w-4 h-4 mr-2" />
+                  Hotel Demo
+                </a>
+              </Button>
               <Button variant="outline" asChild>
                 <a href="/cms">
                   <Settings className="w-4 h-4 mr-2" />
@@ -47,8 +53,11 @@ const Index = () => {
                 Ir al CMS
               </a>
             </Button>
-            <Button variant="outline" size="lg">
-              Ver Más
+            <Button variant="outline" size="lg" asChild>
+              <a href="/hilton">
+                <Building className="w-5 h-5 mr-2" />
+                Ver Demo Hotel
+              </a>
             </Button>
           </div>
         </div>
@@ -95,11 +104,18 @@ const Index = () => {
             <p className="mt-4 text-xl text-gray-600">
               Accede al panel de administración y comienza a gestionar tu contenido
             </p>
-            <Button size="lg" className="mt-6" asChild>
-              <a href="/cms">
-                Acceder al Panel Admin
-              </a>
-            </Button>
+            <div className="flex justify-center gap-4 mt-6">
+              <Button size="lg" asChild>
+                <a href="/cms">
+                  Acceder al Panel Admin
+                </a>
+              </Button>
+              <Button size="lg" variant="outline" asChild>
+                <a href="/hilton">
+                  Ver Demo Hotel
+                </a>
+              </Button>
+            </div>
           </div>
         </div>
       </main>
