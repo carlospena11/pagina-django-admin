@@ -8,7 +8,7 @@ import {
   Users, 
   BarChart3,
   Globe,
-  Menu
+  Edit
 } from 'lucide-react';
 import {
   Sidebar,
@@ -20,48 +20,71 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarHeader,
-  SidebarTrigger
 } from "@/components/ui/sidebar";
+
+interface CMSSidebarProps {
+  currentView?: string;
+  onNavigate?: (view: string) => void;
+}
 
 const menuItems = [
   {
     title: "Dashboard",
-    url: "/cms",
+    view: "dashboard",
     icon: LayoutDashboard,
   },
   {
     title: "Páginas",
-    url: "/cms/pages",
+    view: "pages",
     icon: FileText,
   },
   {
+    title: "Editor",
+    view: "editor",
+    icon: Edit,
+  },
+  {
     title: "Medios",
-    url: "/cms/media",
+    view: "media",
     icon: Image,
   },
   {
     title: "Usuarios",
-    url: "/cms/users",
+    view: "users",
     icon: Users,
   },
   {
     title: "Analíticas",
-    url: "/cms/analytics",
+    view: "analytics",
     icon: BarChart3,
   },
+];
+
+const externalItems = [
   {
     title: "Sitio Web",
     url: "/",
     icon: Globe,
   },
   {
+    title: "Página de Muestra",
+    url: "/sample",
+    icon: FileText,
+  },
+  {
     title: "Configuración",
-    url: "/cms/settings",
+    view: "settings",
     icon: Settings,
   },
 ];
 
-export function CMSSidebar() {
+export function CMSSidebar({ currentView, onNavigate }: CMSSidebarProps) {
+  const handleNavigation = (view: string) => {
+    if (onNavigate) {
+      onNavigate(view);
+    }
+  };
+
   return (
     <Sidebar className="border-r border-gray-200">
       <SidebarHeader className="p-4 border-b border-gray-200">
@@ -80,11 +103,48 @@ export function CMSSidebar() {
             <SidebarMenu>
               {menuItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <a href={item.url} className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-gray-100 transition-colors">
-                      <item.icon className="w-5 h-5" />
-                      <span>{item.title}</span>
-                    </a>
+                  <SidebarMenuButton 
+                    onClick={() => handleNavigation(item.view)}
+                    className={`flex items-center gap-3 px-3 py-2 rounded-md transition-colors cursor-pointer ${
+                      currentView === item.view 
+                        ? 'bg-blue-100 text-blue-900' 
+                        : 'hover:bg-gray-100'
+                    }`}
+                  >
+                    <item.icon className="w-5 h-5" />
+                    <span>{item.title}</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarGroup>
+          <SidebarGroupLabel>Enlaces Externos</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {externalItems.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton asChild={!!item.url}>
+                    {item.url ? (
+                      <a href={item.url} className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-gray-100 transition-colors">
+                        <item.icon className="w-5 h-5" />
+                        <span>{item.title}</span>
+                      </a>
+                    ) : (
+                      <div 
+                        onClick={() => item.view && handleNavigation(item.view)}
+                        className={`flex items-center gap-3 px-3 py-2 rounded-md transition-colors cursor-pointer ${
+                          currentView === item.view 
+                            ? 'bg-blue-100 text-blue-900' 
+                            : 'hover:bg-gray-100'
+                        }`}
+                      >
+                        <item.icon className="w-5 h-5" />
+                        <span>{item.title}</span>
+                      </div>
+                    )}
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
