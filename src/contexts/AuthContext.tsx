@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { getSupabase, isSupabaseConfigured, UserProfile, UserRole } from '@/lib/supabase';
@@ -94,7 +95,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         // If profile doesn't exist, create a default one
         await createDefaultProfile(userId);
       } else {
-        setProfile(data as UserProfile);
+        setProfile(data as unknown as UserProfile);
       }
     } catch (error) {
       console.error('Error in fetchUserProfile:', error);
@@ -125,7 +126,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       if (error) {
         console.error('Error creating default profile:', error);
       } else {
-        setProfile(data as UserProfile);
+        setProfile(data as unknown as UserProfile);
       }
     } catch (error) {
       console.error('Error in createDefaultProfile:', error);
