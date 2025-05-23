@@ -5,6 +5,8 @@ import { Card } from "@/components/ui/card";
 import { Settings, FileText, BarChart3, Building } from 'lucide-react';
 
 const Index = () => {
+  console.log("Index component is rendering");
+  
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
       {/* Header */}
