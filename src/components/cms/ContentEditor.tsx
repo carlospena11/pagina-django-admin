@@ -14,7 +14,9 @@ import {
   User,
   Globe,
   Edit3,
-  Settings
+  Settings,
+  ExternalLink,
+  ArrowLeft
 } from 'lucide-react';
 
 interface ContentEditorProps {
@@ -38,6 +40,7 @@ export const ContentEditor: React.FC<ContentEditorProps> = ({ onNavigate }) => {
 <p>Puedes incluir imágenes, enlaces y cualquier otro contenido HTML que necesites para tu sitio web.</p>`);
   const [slug, setSlug] = useState('inicio');
   const [status, setStatus] = useState('Borrador');
+  const [isFullPreview, setIsFullPreview] = useState(false);
 
   const handleSave = () => {
     console.log('Guardando contenido...', { title, content, slug, status });
@@ -55,6 +58,43 @@ export const ContentEditor: React.FC<ContentEditorProps> = ({ onNavigate }) => {
     setStatus('Publicada');
     handleSave();
   };
+
+  const handleFullPreview = () => {
+    setIsFullPreview(true);
+  };
+
+  const handleBackToEditor = () => {
+    setIsFullPreview(false);
+  };
+
+  if (isFullPreview) {
+    return (
+      <div className="space-y-6">
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">Vista Previa Completa</h1>
+            <p className="text-gray-500 mt-1">Visualización de la página tal como se verá publicada</p>
+          </div>
+          <Button onClick={handleBackToEditor} className="flex items-center gap-2">
+            <ArrowLeft className="w-4 h-4" />
+            Volver al Editor
+          </Button>
+        </div>
+
+        <Card className="min-h-[600px]">
+          <CardContent className="p-8">
+            <div className="max-w-4xl mx-auto">
+              <h1 className="text-4xl font-bold mb-6">{title}</h1>
+              <div 
+                className="prose prose-lg max-w-none"
+                dangerouslySetInnerHTML={{ __html: content }}
+              />
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -116,22 +156,48 @@ export const ContentEditor: React.FC<ContentEditorProps> = ({ onNavigate }) => {
             </CardContent>
           </Card>
 
-          {/* Vista Previa */}
+          {/* Vista Previa en Miniatura */}
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Eye className="w-5 h-5" />
-                Vista Previa
-              </CardTitle>
-              <CardDescription>
-                Así se verá tu contenido en el sitio web
-              </CardDescription>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="flex items-center gap-2">
+                    <Eye className="w-5 h-5" />
+                    Vista Previa en Miniatura
+                  </CardTitle>
+                  <CardDescription>
+                    Así se verá tu contenido en el sitio web
+                  </CardDescription>
+                </div>
+                <Button onClick={handleFullPreview} size="sm" className="flex items-center gap-2">
+                  <ExternalLink className="w-4 h-4" />
+                  Ver Completa
+                </Button>
+              </div>
             </CardHeader>
             <CardContent>
-              <div 
-                className="prose max-w-none border rounded-lg p-6 bg-white min-h-[300px]"
-                dangerouslySetInnerHTML={{ __html: content }}
-              />
+              <div className="border rounded-lg overflow-hidden bg-white">
+                {/* Barra de navegación simulada */}
+                <div className="bg-gray-50 border-b px-4 py-2 flex items-center gap-2">
+                  <div className="flex gap-1">
+                    <div className="w-3 h-3 bg-red-400 rounded-full"></div>
+                    <div className="w-3 h-3 bg-yellow-400 rounded-full"></div>
+                    <div className="w-3 h-3 bg-green-400 rounded-full"></div>
+                  </div>
+                  <div className="flex-1 bg-white rounded px-3 py-1 text-xs text-gray-500">
+                    misite.com/pages/{slug}
+                  </div>
+                </div>
+                
+                {/* Contenido de la vista previa */}
+                <div className="p-4 max-h-[300px] overflow-y-auto">
+                  <h1 className="text-lg font-bold mb-3">{title}</h1>
+                  <div 
+                    className="prose prose-sm max-w-none text-sm"
+                    dangerouslySetInnerHTML={{ __html: content }}
+                  />
+                </div>
+              </div>
             </CardContent>
           </Card>
         </div>
