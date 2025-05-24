@@ -32,7 +32,8 @@ import {
   Users,
   MapPin,
   Clock,
-  DollarSign
+  Image,
+  X
 } from 'lucide-react';
 import { useCMS } from '@/contexts/CMSContext';
 
@@ -45,14 +46,13 @@ interface EventFormData {
   location: string;
   event_type: string;
   status: 'active' | 'inactive' | 'cancelled';
-  max_capacity: string;
-  price: string;
-  image_url: string;
+  image_urls: string[];
 }
 
 export const EventManager: React.FC = () => {
-  const { events, hotels, addEvent, updateEvent, deleteEvent } = useCMS();
+  const { events, hotels, media, addEvent, updateEvent, deleteEvent } = useCMS();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isImageSelectorOpen, setIsImageSelectorOpen] = useState(false);
   const [editingEvent, setEditingEvent] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   
@@ -65,9 +65,7 @@ export const EventManager: React.FC = () => {
     location: '',
     event_type: 'general',
     status: 'active',
-    max_capacity: '',
-    price: '',
-    image_url: ''
+    image_urls: []
   });
 
   const eventTypes = [
@@ -90,14 +88,12 @@ export const EventManager: React.FC = () => {
       location: '',
       event_type: 'general',
       status: 'active',
-      max_capacity: '',
-      price: '',
-      image_url: ''
+      image_urls: []
     });
     setEditingEvent(null);
   };
 
-  const handleInputChange = (field: keyof EventFormData, value: string) => {
+  const handleInputChange = (field: keyof EventFormData, value: string | string[]) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
@@ -106,9 +102,8 @@ export const EventManager: React.FC = () => {
     
     const eventData = {
       ...formData,
-      max_capacity: formData.max_capacity ? parseInt(formData.max_capacity) : undefined,
-      price: formData.price ? parseFloat(formData.price) : undefined,
-      current_attendees: 0
+      current_attendees: 0,
+      image_url: formData.image_urls[0] || null // Use first image as main image for backward compatibility
     };
 
     if (editingEvent) {
@@ -131,9 +126,7 @@ export const EventManager: React.FC = () => {
       location: event.location || '',
       event_type: event.event_type,
       status: event.status,
-      max_capacity: event.max_capacity?.toString() || '',
-      price: event.price?.toString() || '',
-      image_url: event.image_url || ''
+      image_urls: event.image_url ? [event.image_url] : []
     });
     setEditingEvent(event.id);
     setIsDialogOpen(true);
@@ -143,6 +136,17 @@ export const EventManager: React.FC = () => {
     if (confirm('¿Estás seguro de que quieres eliminar este evento?')) {
       deleteEvent(id);
     }
+  };
+
+  const handleImageSelect = (imageUrl: string) => {
+    if (!formData.image_urls.includes(imageUrl)) {
+      handleInputChange('image_urls', [...formData.image_urls, imageUrl]);
+    }
+    setIsImageSelectorOpen(false);
+  };
+
+  const handleImageRemove = (imageUrl: string) => {
+    handleInputChange('image_urls', formData.image_urls.filter(url => url !== imageUrl));
   };
 
   const getHotelName = (hotelId: string) => {
@@ -180,6 +184,8 @@ export const EventManager: React.FC = () => {
     event.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
     getHotelName(event.hotel_id).toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const imageMedia = media.filter(item => item.type === 'image');
 
   return (
     <div className="space-y-6">
@@ -295,35 +301,41 @@ export const EventManager: React.FC = () => {
                     </SelectContent>
                   </Select>
                 </div>
-                <div>
-                  <Label htmlFor="max_capacity">Capacidad Máxima</Label>
-                  <Input
-                    id="max_capacity"
-                    type="number"
-                    value={formData.max_capacity}
-                    onChange={(e) => handleInputChange('max_capacity', e.target.value)}
-                    placeholder="Número de personas"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="price">Precio por Persona</Label>
-                  <Input
-                    id="price"
-                    type="number"
-                    step="0.01"
-                    value={formData.price}
-                    onChange={(e) => handleInputChange('price', e.target.value)}
-                    placeholder="0.00"
-                  />
-                </div>
                 <div className="col-span-2">
-                  <Label htmlFor="image_url">URL de Imagen</Label>
-                  <Input
-                    id="image_url"
-                    value={formData.image_url}
-                    onChange={(e) => handleInputChange('image_url', e.target.value)}
-                    placeholder="https://ejemplo.com/imagen.jpg"
-                  />
+                  <Label>Imágenes del Evento</Label>
+                  <div className="space-y-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => setIsImageSelectorOpen(true)}
+                      className="flex items-center gap-2"
+                    >
+                      <Image className="w-4 h-4" />
+                      Seleccionar Imágenes
+                    </Button>
+                    {formData.image_urls.length > 0 && (
+                      <div className="grid grid-cols-3 gap-2">
+                        {formData.image_urls.map((imageUrl, index) => (
+                          <div key={index} className="relative group">
+                            <img
+                              src={imageUrl}
+                              alt={`Imagen ${index + 1}`}
+                              className="w-full h-20 object-cover rounded border"
+                            />
+                            <Button
+                              type="button"
+                              size="sm"
+                              variant="destructive"
+                              className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                              onClick={() => handleImageRemove(imageUrl)}
+                            >
+                              <X className="w-3 h-3" />
+                            </Button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
               <DialogFooter>
@@ -335,6 +347,41 @@ export const EventManager: React.FC = () => {
                 </Button>
               </DialogFooter>
             </form>
+          </DialogContent>
+        </Dialog>
+
+        {/* Image Selector Dialog */}
+        <Dialog open={isImageSelectorOpen} onOpenChange={setIsImageSelectorOpen}>
+          <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Seleccionar Imagen</DialogTitle>
+              <DialogDescription>
+                Elige una imagen de la biblioteca de medios para el evento
+              </DialogDescription>
+            </DialogHeader>
+            <div className="grid grid-cols-3 md:grid-cols-4 gap-4">
+              {imageMedia.map((item) => (
+                <div
+                  key={item.id}
+                  className="cursor-pointer group relative rounded-lg overflow-hidden border hover:border-blue-500 transition-colors"
+                  onClick={() => handleImageSelect(item.url)}
+                >
+                  <img
+                    src={item.url}
+                    alt={item.alt || item.name}
+                    className="w-full h-24 object-cover"
+                  />
+                  <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 transition-opacity flex items-center justify-center">
+                    <span className="text-white text-sm opacity-0 group-hover:opacity-100 transition-opacity">
+                      Seleccionar
+                    </span>
+                  </div>
+                  <div className="p-2">
+                    <p className="text-xs font-medium truncate">{item.name}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
           </DialogContent>
         </Dialog>
       </div>
@@ -350,7 +397,7 @@ export const EventManager: React.FC = () => {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Eventos</CardTitle>
@@ -378,17 +425,6 @@ export const EventManager: React.FC = () => {
             <div className="text-2xl font-bold">{events.reduce((sum, e) => sum + e.current_attendees, 0)}</div>
           </CardContent>
         </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Ingresos Potenciales</CardTitle>
-            <DollarSign className="w-4 h-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              ${events.reduce((sum, e) => sum + (e.price || 0) * e.current_attendees, 0).toLocaleString()}
-            </div>
-          </CardContent>
-        </Card>
       </div>
 
       {/* Events Table */}
@@ -408,8 +444,7 @@ export const EventManager: React.FC = () => {
                 <TableHead>Fecha</TableHead>
                 <TableHead>Tipo</TableHead>
                 <TableHead>Estado</TableHead>
-                <TableHead>Asistentes</TableHead>
-                <TableHead>Precio</TableHead>
+                <TableHead>Imágenes</TableHead>
                 <TableHead>Acciones</TableHead>
               </TableRow>
             </TableHeader>
@@ -446,13 +481,17 @@ export const EventManager: React.FC = () => {
                     </Badge>
                   </TableCell>
                   <TableCell>
-                    <div className="text-sm">
-                      {event.current_attendees}
-                      {event.max_capacity && ` / ${event.max_capacity}`}
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    {event.price ? `$${event.price}` : 'Gratis'}
+                    {event.image_url ? (
+                      <img
+                        src={event.image_url}
+                        alt={event.title}
+                        className="w-10 h-10 object-cover rounded"
+                      />
+                    ) : (
+                      <div className="w-10 h-10 bg-gray-200 rounded flex items-center justify-center">
+                        <Image className="w-4 h-4 text-gray-400" />
+                      </div>
+                    )}
                   </TableCell>
                   <TableCell>
                     <div className="flex gap-2">
