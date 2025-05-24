@@ -6,12 +6,14 @@ import { Badge } from '@/components/ui/badge';
 import { 
   FileText, 
   Image, 
-  Users, 
+  Hotel, 
   BarChart3, 
   Plus,
   Edit,
   Eye,
-  Calendar
+  Calendar,
+  Tv,
+  Bed
 } from 'lucide-react';
 import { useCMS } from '@/contexts/CMSContext';
 
@@ -20,32 +22,33 @@ interface DashboardProps {
 }
 
 export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
-  const { pages, media } = useCMS();
+  const { pages, media, hotels, rooms, platforms } = useCMS();
   
   const publishedPages = pages.filter(page => page.status === 'published').length;
   const draftPages = pages.filter(page => page.status === 'draft').length;
   const totalViews = pages.reduce((sum, page) => sum + page.views, 0);
+  const activePlatforms = platforms.filter(platform => platform.status === 'active').length;
   
   const stats = [
     {
-      title: "Total de Páginas",
-      value: pages.length.toString(),
-      description: `${publishedPages} publicadas, ${draftPages} borradores`,
-      icon: FileText,
+      title: "Hoteles",
+      value: hotels.length.toString(),
+      description: `${hotels.filter(h => h.status === 'active').length} activos`,
+      icon: Hotel,
       color: "bg-blue-500"
     },
     {
-      title: "Imágenes",
-      value: media.length.toString(),
-      description: "Total en la biblioteca",
-      icon: Image,
+      title: "Habitaciones",
+      value: rooms.length.toString(),
+      description: `${rooms.filter(r => r.status === 'active').length} disponibles`,
+      icon: Bed,
       color: "bg-green-500"
     },
     {
-      title: "Usuarios",
-      value: "8",
-      description: "Usuarios activos",
-      icon: Users,
+      title: "Plataformas",
+      value: platforms.length.toString(),
+      description: `${activePlatforms} activas`,
+      icon: Tv,
       color: "bg-purple-500"
     },
     {
