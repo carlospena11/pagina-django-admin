@@ -29,11 +29,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Plus, Edit, Trash2, Tv, Calendar, User, Lock } from 'lucide-react';
+import { Plus, Edit, Trash2, Tv, Calendar, User, Lock, Building } from 'lucide-react';
 
 interface Platform {
   id: string;
   platform: string;
+  hotel: string;
   room: string;
   user: string;
   password: string;
@@ -54,11 +55,20 @@ const platformOptions = [
   'YouTube Premium'
 ];
 
+const hotelOptions = [
+  'Hotel Central',
+  'Hotel Plaza',
+  'Hotel Boutique',
+  'Resort & Spa',
+  'Business Hotel'
+];
+
 export const PlatformManager: React.FC = () => {
   const [platforms, setPlatforms] = useState<Platform[]>([
     {
       id: '1',
       platform: 'Netflix',
+      hotel: 'Hotel Central',
       room: '101',
       user: 'hotel.netflix@gmail.com',
       password: 'Netflix2024!',
@@ -68,6 +78,7 @@ export const PlatformManager: React.FC = () => {
     {
       id: '2',
       platform: 'Disney+',
+      hotel: 'Hotel Plaza',
       room: '102',
       user: 'hotel.disney@gmail.com',
       password: 'Disney2024!',
@@ -77,6 +88,7 @@ export const PlatformManager: React.FC = () => {
     {
       id: '3',
       platform: 'Amazon Prime Video',
+      hotel: 'Resort & Spa',
       room: '103',
       user: 'hotel.prime@gmail.com',
       password: 'Prime2024!',
@@ -89,6 +101,7 @@ export const PlatformManager: React.FC = () => {
   const [editingPlatform, setEditingPlatform] = useState<Platform | null>(null);
   const [formData, setFormData] = useState({
     platform: '',
+    hotel: '',
     room: '',
     user: '',
     password: '',
@@ -98,6 +111,7 @@ export const PlatformManager: React.FC = () => {
   const resetForm = () => {
     setFormData({
       platform: '',
+      hotel: '',
       room: '',
       user: '',
       password: '',
@@ -111,6 +125,7 @@ export const PlatformManager: React.FC = () => {
       setEditingPlatform(platform);
       setFormData({
         platform: platform.platform,
+        hotel: platform.hotel,
         room: platform.room,
         user: platform.user,
         password: platform.password,
@@ -213,6 +228,25 @@ export const PlatformManager: React.FC = () => {
                       {platformOptions.map((platform) => (
                         <SelectItem key={platform} value={platform}>
                           {platform}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="hotel" className="text-right">
+                  Hotel
+                </Label>
+                <div className="col-span-3">
+                  <Select value={formData.hotel} onValueChange={(value) => setFormData({...formData, hotel: value})}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecciona un hotel" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {hotelOptions.map((hotel) => (
+                        <SelectItem key={hotel} value={hotel}>
+                          {hotel}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -334,6 +368,7 @@ export const PlatformManager: React.FC = () => {
             <TableHeader>
               <TableRow>
                 <TableHead>Plataforma</TableHead>
+                <TableHead>Hotel</TableHead>
                 <TableHead>Habitación</TableHead>
                 <TableHead>Usuario</TableHead>
                 <TableHead>Contraseña</TableHead>
@@ -349,6 +384,12 @@ export const PlatformManager: React.FC = () => {
                     <div className="flex items-center gap-2">
                       <Tv className="w-4 h-4" />
                       {platform.platform}
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      <Building className="w-4 h-4 text-gray-400" />
+                      {platform.hotel}
                     </div>
                   </TableCell>
                   <TableCell>{platform.room}</TableCell>
