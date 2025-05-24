@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -22,12 +21,13 @@ interface DashboardProps {
 }
 
 export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
-  const { pages, media, hotels, rooms, platforms } = useCMS();
+  const { pages, media, hotels, rooms, platforms, events } = useCMS();
   
   const publishedPages = pages.filter(page => page.status === 'published').length;
   const draftPages = pages.filter(page => page.status === 'draft').length;
   const totalViews = pages.reduce((sum, page) => sum + page.views, 0);
   const activePlatforms = platforms.filter(platform => platform.status === 'active').length;
+  const activeEvents = events.filter(event => event.status === 'active').length;
   
   const stats = [
     {
@@ -45,17 +45,17 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
       color: "bg-green-500"
     },
     {
+      title: "Eventos",
+      value: events.length.toString(),
+      description: `${activeEvents} activos`,
+      icon: Calendar,
+      color: "bg-purple-500"
+    },
+    {
       title: "Plataformas",
       value: platforms.length.toString(),
       description: `${activePlatforms} activas`,
       icon: Tv,
-      color: "bg-purple-500"
-    },
-    {
-      title: "Visitas",
-      value: totalViews.toLocaleString(),
-      description: "Total de visitas",
-      icon: BarChart3,
       color: "bg-orange-500"
     }
   ];
@@ -109,6 +109,10 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
           <Button onClick={handleNewPage} className="flex items-center gap-2">
             <Plus className="w-4 h-4" />
             Nueva Página
+          </Button>
+          <Button variant="outline" onClick={() => handleNavigation('events')} className="flex items-center gap-2">
+            <Calendar className="w-4 h-4" />
+            Nuevo Evento
           </Button>
           <Button variant="outline" onClick={() => handleNavigation('media')} className="flex items-center gap-2">
             <Image className="w-4 h-4" />
@@ -183,27 +187,41 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Image className="w-5 h-5" />
-              Galería de Imágenes
+              <Calendar className="w-5 h-5" />
+              Próximos Eventos
             </CardTitle>
             <CardDescription>
-              Últimas imágenes subidas
+              Eventos programados próximamente
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-3 gap-2 mb-4">
-              {media.slice(0, 6).map((item) => (
-                <div key={item.id} className="aspect-square rounded-lg overflow-hidden">
-                  <img
-                    src={item.url}
-                    alt={item.alt || item.name}
-                    className="w-full h-full object-cover hover:scale-105 transition-transform cursor-pointer"
-                  />
+            <div className="space-y-4">
+              {events.slice(0, 3).map((event) => (
+                <div key={event.id} className="flex items-center justify-between p-3 border rounded-lg">
+                  <div className="flex-1">
+                    <h4 className="font-medium">{event.title}</h4>
+                    <div className="flex items-center gap-2 mt-1">
+                      <Badge className={getStatusColor(event.status)} variant="secondary">
+                        {getStatusText(event.status)}
+                      </Badge>
+                      <span className="text-sm text-gray-500">
+                        {new Date(event.start_date).toLocaleDateString()}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex gap-1">
+                    <Button size="sm" variant="outline" onClick={() => handleNavigation('events')}>
+                      <Edit className="w-4 h-4" />
+                    </Button>
+                    <Button size="sm" variant="outline">
+                      <Eye className="w-4 h-4" />
+                    </Button>
+                  </div>
                 </div>
               ))}
             </div>
-            <Button variant="outline" className="w-full" onClick={() => handleNavigation('media')}>
-              Ver Biblioteca Completa
+            <Button variant="outline" className="w-full mt-4" onClick={() => handleNavigation('events')}>
+              Ver Todos los Eventos
             </Button>
           </CardContent>
         </Card>

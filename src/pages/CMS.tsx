@@ -6,6 +6,7 @@ import { PageManager } from '@/components/cms/PageManager';
 import { MediaManager } from '@/components/cms/MediaManager';
 import { ContentEditor } from '@/components/cms/ContentEditor';
 import { PlatformManager } from '@/components/cms/PlatformManager';
+import { EventManager } from '@/components/cms/EventManager';
 import { SettingsManager } from '@/components/cms/SettingsManager';
 import { CMSProvider } from '@/contexts/CMSContext';
 
@@ -26,6 +27,8 @@ const CMSContent: React.FC = () => {
         return <MediaManager />;
       case 'editor':
         return <ContentEditor onNavigate={setCurrentView} />;
+      case 'events':
+        return <EventManager />;
       case 'platforms':
         return <PlatformManager />;
       case 'settings':

@@ -49,12 +49,31 @@ interface Platform {
   createdAt: string;
 }
 
+interface Event {
+  id: string;
+  title: string;
+  description?: string;
+  hotel_id: string;
+  start_date: string;
+  end_date?: string;
+  location?: string;
+  event_type: string;
+  status: 'active' | 'inactive' | 'cancelled';
+  max_capacity?: number;
+  current_attendees: number;
+  price?: number;
+  image_url?: string;
+  created_at: string;
+  updated_at: string;
+}
+
 interface CMSContextType {
   pages: Page[];
   media: MediaItem[];
   hotels: Hotel[];
   rooms: Room[];
   platforms: Platform[];
+  events: Event[];
   addPage: (page: Omit<Page, 'id'>) => void;
   updatePage: (id: string, updates: Partial<Page>) => void;
   deletePage: (id: string) => void;
@@ -69,6 +88,9 @@ interface CMSContextType {
   addPlatform: (platform: Omit<Platform, 'id'>) => void;
   updatePlatform: (id: string, updates: Partial<Platform>) => void;
   deletePlatform: (id: string) => void;
+  addEvent: (event: Omit<Event, 'id' | 'created_at' | 'updated_at'>) => void;
+  updateEvent: (id: string, updates: Partial<Event>) => void;
+  deleteEvent: (id: string) => void;
 }
 
 const CMSContext = createContext<CMSContextType | undefined>(undefined);
@@ -244,6 +266,59 @@ export const CMSProvider: React.FC<CMSProviderProps> = ({ children }) => {
     }
   ]);
 
+  const [events, setEvents] = useState<Event[]>([
+    {
+      id: '1',
+      title: 'Noche de Gala Navideña',
+      description: 'Una elegante cena navideña con espectáculo en vivo y menú especial de temporada.',
+      hotel_id: '1',
+      start_date: '2024-12-24T19:00:00Z',
+      end_date: '2024-12-24T23:00:00Z',
+      location: 'Salón Principal',
+      event_type: 'gala',
+      status: 'active',
+      max_capacity: 150,
+      current_attendees: 87,
+      price: 120.00,
+      image_url: 'https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3',
+      created_at: '2024-01-15T10:00:00Z',
+      updated_at: '2024-01-15T10:00:00Z'
+    },
+    {
+      id: '2',
+      title: 'Conferencia de Negocios',
+      description: 'Evento corporativo para empresas locales con networking y presentaciones.',
+      hotel_id: '1',
+      start_date: '2024-02-10T09:00:00Z',
+      end_date: '2024-02-10T17:00:00Z',
+      location: 'Centro de Conferencias',
+      event_type: 'conference',
+      status: 'active',
+      max_capacity: 200,
+      current_attendees: 156,
+      price: 85.00,
+      created_at: '2024-01-10T10:00:00Z',
+      updated_at: '2024-01-10T10:00:00Z'
+    },
+    {
+      id: '3',
+      title: 'Festival de Verano',
+      description: 'Celebración al aire libre con música en vivo, comida y actividades familiares.',
+      hotel_id: '2',
+      start_date: '2024-07-15T16:00:00Z',
+      end_date: '2024-07-15T22:00:00Z',
+      location: 'Jardines del Hotel',
+      event_type: 'festival',
+      status: 'active',
+      max_capacity: 300,
+      current_attendees: 45,
+      price: 25.00,
+      image_url: 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30',
+      created_at: '2024-01-05T10:00:00Z',
+      updated_at: '2024-01-05T10:00:00Z'
+    }
+  ]);
+
   const addPage = (page: Omit<Page, 'id'>) => {
     const newPage = {
       ...page,
@@ -328,6 +403,27 @@ export const CMSProvider: React.FC<CMSProviderProps> = ({ children }) => {
     setPlatforms(platforms.filter(platform => platform.id !== id));
   };
 
+  const addEvent = (event: Omit<Event, 'id' | 'created_at' | 'updated_at'>) => {
+    const now = new Date().toISOString();
+    const newEvent = {
+      ...event,
+      id: (events.length + 1).toString(),
+      created_at: now,
+      updated_at: now,
+    };
+    setEvents([...events, newEvent]);
+  };
+
+  const updateEvent = (id: string, updates: Partial<Event>) => {
+    setEvents(events.map(event => 
+      event.id === id ? { ...event, ...updates, updated_at: new Date().toISOString() } : event
+    ));
+  };
+
+  const deleteEvent = (id: string) => {
+    setEvents(events.filter(event => event.id !== id));
+  };
+
   return (
     <CMSContext.Provider value={{
       pages,
@@ -335,6 +431,7 @@ export const CMSProvider: React.FC<CMSProviderProps> = ({ children }) => {
       hotels,
       rooms,
       platforms,
+      events,
       addPage,
       updatePage,
       deletePage,
@@ -349,6 +446,9 @@ export const CMSProvider: React.FC<CMSProviderProps> = ({ children }) => {
       addPlatform,
       updatePlatform,
       deletePlatform,
+      addEvent,
+      updateEvent,
+      deleteEvent,
     }}>
       {children}
     </CMSContext.Provider>

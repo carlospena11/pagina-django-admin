@@ -9,7 +9,8 @@ import {
   BarChart3,
   Globe,
   Edit,
-  Tv
+  Tv,
+  Calendar
 } from 'lucide-react';
 import {
   Sidebar,
@@ -51,6 +52,12 @@ const menuItems = [
     title: "Medios",
     view: "media",
     icon: Image,
+    roles: ['admin', 'editor']
+  },
+  {
+    title: "Eventos",
+    view: "events",
+    icon: Calendar,
     roles: ['admin', 'editor']
   },
   {
