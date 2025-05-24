@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Bell, Search, User, LogOut, Settings, ChevronDown } from 'lucide-react';
+import { Bell, Search, User, Settings, ChevronDown } from 'lucide-react';
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,10 +13,14 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useAuth } from '@/contexts/AuthContext';
 
 export const CMSHeader: React.FC = () => {
-  const { profile, signOut } = useAuth();
+  // Mock user data for development
+  const mockProfile = {
+    email: 'admin@sistema.com',
+    full_name: 'Administrador',
+    role: 'admin'
+  };
 
   const getRoleColor = (role: string) => {
     switch (role) {
@@ -29,10 +33,6 @@ export const CMSHeader: React.FC = () => {
       default:
         return 'bg-gray-100 text-gray-800';
     }
-  };
-
-  const handleSignOut = async () => {
-    await signOut();
   };
 
   return (
@@ -60,9 +60,9 @@ export const CMSHeader: React.FC = () => {
             <DropdownMenuTrigger asChild>
               <Button variant="outline" className="flex items-center gap-2">
                 <User className="w-4 h-4" />
-                <span className="hidden md:inline">{profile?.full_name || profile?.email}</span>
-                <Badge variant="secondary" className={getRoleColor(profile?.role || 'viewer')}>
-                  {profile?.role}
+                <span className="hidden md:inline">{mockProfile.full_name}</span>
+                <Badge variant="secondary" className={getRoleColor(mockProfile.role)}>
+                  {mockProfile.role}
                 </Badge>
                 <ChevronDown className="w-4 h-4" />
               </Button>
@@ -77,11 +77,6 @@ export const CMSHeader: React.FC = () => {
               <DropdownMenuItem>
                 <Settings className="mr-2 h-4 w-4" />
                 <span>Configuración</span>
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={handleSignOut} className="text-red-600">
-                <LogOut className="mr-2 h-4 w-4" />
-                <span>Cerrar Sesión</span>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

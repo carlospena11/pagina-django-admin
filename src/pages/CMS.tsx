@@ -6,13 +6,13 @@ import { PageManager } from '@/components/cms/PageManager';
 import { MediaManager } from '@/components/cms/MediaManager';
 import { ContentEditor } from '@/components/cms/ContentEditor';
 import { CMSProvider } from '@/contexts/CMSContext';
-import { AuthProvider } from '@/contexts/AuthContext';
-import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
-import { useAuth } from '@/contexts/AuthContext';
 
 const CMSContent: React.FC = () => {
   const [currentView, setCurrentView] = useState('dashboard');
-  const { canEdit, canAdmin } = useAuth();
+
+  // Mock user with admin permissions for development
+  const mockCanEdit = () => true;
+  const mockCanAdmin = () => true;
 
   const renderContent = () => {
     switch (currentView) {
@@ -21,15 +21,15 @@ const CMSContent: React.FC = () => {
       case 'pages':
         return <PageManager onNavigate={setCurrentView} />;
       case 'media':
-        return canEdit() ? <MediaManager /> : <Dashboard onNavigate={setCurrentView} />;
+        return <MediaManager />;
       case 'editor':
-        return canEdit() ? <ContentEditor onNavigate={setCurrentView} /> : <Dashboard onNavigate={setCurrentView} />;
+        return <ContentEditor onNavigate={setCurrentView} />;
       case 'users':
-        return canAdmin() ? <div className="p-6"><h1>Gestión de Usuarios (Próximamente)</h1></div> : <Dashboard onNavigate={setCurrentView} />;
+        return <div className="p-6"><h1>Gestión de Usuarios (Próximamente)</h1></div>;
       case 'analytics':
-        return canEdit() ? <div className="p-6"><h1>Analíticas (Próximamente)</h1></div> : <Dashboard onNavigate={setCurrentView} />;
+        return <div className="p-6"><h1>Analíticas (Próximamente)</h1></div>;
       case 'settings':
-        return canAdmin() ? <div className="p-6"><h1>Configuración (Próximamente)</h1></div> : <Dashboard onNavigate={setCurrentView} />;
+        return <div className="p-6"><h1>Configuración (Próximamente)</h1></div>;
       default:
         return <Dashboard onNavigate={setCurrentView} />;
     }
@@ -45,13 +45,7 @@ const CMSContent: React.FC = () => {
 };
 
 const CMS: React.FC = () => {
-  return (
-    <AuthProvider>
-      <ProtectedRoute>
-        <CMSContent />
-      </ProtectedRoute>
-    </AuthProvider>
-  );
+  return <CMSContent />;
 };
 
 export default CMS;
