@@ -29,7 +29,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Plus, Edit, Trash2, Tv, Calendar, User, Lock, Building } from 'lucide-react';
+import { Plus, Edit, Trash2, Tv, Calendar, User, Lock, Building, AlertTriangle, Eye, EyeOff } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 interface Platform {
   id: string;
@@ -41,6 +42,21 @@ interface Platform {
   cutoffDate: string;
   status: 'active' | 'expired' | 'pending';
 }
+
+// Mock data para hoteles y habitaciones (en una aplicación real vendría de un contexto o API)
+const mockHotels = [
+  'Hotel Central',
+  'Hotel Plaza',
+  'Hotel Boutique',
+  'Resort & Spa',
+  'Business Hotel'
+];
+
+const mockRooms = [
+  '101', '102', '103', '104', '105',
+  '201', '202', '203', '204', '205',
+  '301', '302', '303', '304', '305'
+];
 
 const platformOptions = [
   'Netflix',
@@ -55,15 +71,10 @@ const platformOptions = [
   'YouTube Premium'
 ];
 
-const hotelOptions = [
-  'Hotel Central',
-  'Hotel Plaza',
-  'Hotel Boutique',
-  'Resort & Spa',
-  'Business Hotel'
-];
-
 export const PlatformManager: React.FC = () => {
+  const { toast } = useToast();
+  const [showPasswords, setShowPasswords] = useState<Record<string, boolean>>({});
+  
   const [platforms, setPlatforms] = useState<Platform[]>([
     {
       id: '1',
@@ -137,7 +148,79 @@ export const PlatformManager: React.FC = () => {
     setIsDialogOpen(true);
   };
 
+  const validateForm = () => {
+    if (!formData.platform.trim()) {
+      toast({
+        title: "Error",
+        description: "Debes seleccionar una plataforma",
+        variant: "destructive",
+      });
+      return false;
+    }
+    if (!formData.hotel.trim()) {
+      toast({
+        title: "Error",
+        description: "Debes seleccionar un hotel",
+        variant: "destructive",
+      });
+      return false;
+    }
+    if (!formData.room.trim()) {
+      toast({
+        title: "Error",
+        description: "Debes especificar una habitación",
+        variant: "destructive",
+      });
+      return false;
+    }
+    if (!formData.user.trim()) {
+      toast({
+        title: "Error",
+        description: "Debes ingresar un usuario",
+        variant: "destructive",
+      });
+      return false;
+    }
+    if (!formData.password.trim()) {
+      toast({
+        title: "Error",
+        description: "Debes ingresar una contraseña",
+        variant: "destructive",
+      });
+      return false;
+    }
+    if (!formData.cutoffDate) {
+      toast({
+        title: "Error",
+        description: "Debes especificar una fecha de corte",
+        variant: "destructive",
+      });
+      return false;
+    }
+
+    // Verificar duplicados
+    const isDuplicate = platforms.some(p => 
+      p.platform === formData.platform && 
+      p.hotel === formData.hotel && 
+      p.room === formData.room && 
+      p.id !== editingPlatform?.id
+    );
+
+    if (isDuplicate) {
+      toast({
+        title: "Error",
+        description: "Ya existe esta plataforma configurada para esta habitación",
+        variant: "destructive",
+      });
+      return false;
+    }
+
+    return true;
+  };
+
   const handleSubmit = () => {
+    if (!validateForm()) return;
+
     const now = new Date();
     const cutoffDate = new Date(formData.cutoffDate);
     const status: Platform['status'] = cutoffDate < now ? 'expired' : 'active';
@@ -148,6 +231,10 @@ export const PlatformManager: React.FC = () => {
           ? { ...p, ...formData, status }
           : p
       ));
+      toast({
+        title: "Plataforma actualizada",
+        description: "La configuración de la plataforma se ha actualizado correctamente",
+      });
     } else {
       const newPlatform: Platform = {
         id: (platforms.length + 1).toString(),
@@ -155,6 +242,10 @@ export const PlatformManager: React.FC = () => {
         status
       };
       setPlatforms([...platforms, newPlatform]);
+      toast({
+        title: "Plataforma agregada",
+        description: "La nueva configuración de plataforma se ha agregado correctamente",
+      });
     }
     
     setIsDialogOpen(false);
@@ -163,6 +254,17 @@ export const PlatformManager: React.FC = () => {
 
   const handleDelete = (id: string) => {
     setPlatforms(platforms.filter(p => p.id !== id));
+    toast({
+      title: "Plataforma eliminada",
+      description: "La configuración de la plataforma se ha eliminado correctamente",
+    });
+  };
+
+  const togglePasswordVisibility = (platformId: string) => {
+    setShowPasswords(prev => ({
+      ...prev,
+      [platformId]: !prev[platformId]
+    }));
   };
 
   const getStatusColor = (status: Platform['status']) => {
@@ -191,6 +293,29 @@ export const PlatformManager: React.FC = () => {
     }
   };
 
+  const getStatusIcon = (status: Platform['status']) => {
+    switch (status) {
+      case 'expired':
+        return <AlertTriangle className="w-4 h-4 text-red-600" />;
+      default:
+        return null;
+    }
+  };
+
+  // Estadísticas mejoradas
+  const stats = {
+    total: platforms.length,
+    active: platforms.filter(p => p.status === 'active').length,
+    expired: platforms.filter(p => p.status === 'expired').length,
+    pending: platforms.filter(p => p.status === 'pending').length,
+    expiringThisMonth: platforms.filter(p => {
+      const cutoffDate = new Date(p.cutoffDate);
+      const now = new Date();
+      const thisMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+      return cutoffDate <= thisMonth && cutoffDate >= now;
+    }).length
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -217,7 +342,7 @@ export const PlatformManager: React.FC = () => {
             <div className="grid gap-4 py-4">
               <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="platform" className="text-right">
-                  Plataforma
+                  Plataforma *
                 </Label>
                 <div className="col-span-3">
                   <Select value={formData.platform} onValueChange={(value) => setFormData({...formData, platform: value})}>
@@ -236,7 +361,7 @@ export const PlatformManager: React.FC = () => {
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="hotel" className="text-right">
-                  Hotel
+                  Hotel *
                 </Label>
                 <div className="col-span-3">
                   <Select value={formData.hotel} onValueChange={(value) => setFormData({...formData, hotel: value})}>
@@ -244,7 +369,7 @@ export const PlatformManager: React.FC = () => {
                       <SelectValue placeholder="Selecciona un hotel" />
                     </SelectTrigger>
                     <SelectContent>
-                      {hotelOptions.map((hotel) => (
+                      {mockHotels.map((hotel) => (
                         <SelectItem key={hotel} value={hotel}>
                           {hotel}
                         </SelectItem>
@@ -255,19 +380,26 @@ export const PlatformManager: React.FC = () => {
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="room" className="text-right">
-                  Habitación
+                  Habitación *
                 </Label>
-                <Input
-                  id="room"
-                  value={formData.room}
-                  onChange={(e) => setFormData({...formData, room: e.target.value})}
-                  className="col-span-3"
-                  placeholder="ej. 101"
-                />
+                <div className="col-span-3">
+                  <Select value={formData.room} onValueChange={(value) => setFormData({...formData, room: value})}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecciona una habitación" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {mockRooms.map((room) => (
+                        <SelectItem key={room} value={room}>
+                          {room}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="user" className="text-right">
-                  Usuario
+                  Usuario *
                 </Label>
                 <Input
                   id="user"
@@ -275,11 +407,12 @@ export const PlatformManager: React.FC = () => {
                   onChange={(e) => setFormData({...formData, user: e.target.value})}
                   className="col-span-3"
                   placeholder="ej. usuario@email.com"
+                  required
                 />
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="password" className="text-right">
-                  Contraseña
+                  Contraseña *
                 </Label>
                 <Input
                   id="password"
@@ -288,11 +421,12 @@ export const PlatformManager: React.FC = () => {
                   onChange={(e) => setFormData({...formData, password: e.target.value})}
                   className="col-span-3"
                   placeholder="••••••••"
+                  required
                 />
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="cutoffDate" className="text-right">
-                  Fecha de Corte
+                  Fecha de Corte *
                 </Label>
                 <Input
                   id="cutoffDate"
@@ -300,6 +434,7 @@ export const PlatformManager: React.FC = () => {
                   value={formData.cutoffDate}
                   onChange={(e) => setFormData({...formData, cutoffDate: e.target.value})}
                   className="col-span-3"
+                  required
                 />
               </div>
             </div>
@@ -315,15 +450,15 @@ export const PlatformManager: React.FC = () => {
         </Dialog>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+      {/* Stats Cards Mejoradas */}
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Plataformas</CardTitle>
             <Tv className="w-4 h-4 text-blue-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{platforms.length}</div>
+            <div className="text-2xl font-bold">{stats.total}</div>
           </CardContent>
         </Card>
         <Card>
@@ -332,7 +467,7 @@ export const PlatformManager: React.FC = () => {
             <div className="w-3 h-3 bg-green-500 rounded-full"></div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{platforms.filter(p => p.status === 'active').length}</div>
+            <div className="text-2xl font-bold">{stats.active}</div>
           </CardContent>
         </Card>
         <Card>
@@ -341,7 +476,7 @@ export const PlatformManager: React.FC = () => {
             <div className="w-3 h-3 bg-red-500 rounded-full"></div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{platforms.filter(p => p.status === 'expired').length}</div>
+            <div className="text-2xl font-bold">{stats.expired}</div>
           </CardContent>
         </Card>
         <Card>
@@ -350,12 +485,21 @@ export const PlatformManager: React.FC = () => {
             <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{platforms.filter(p => p.status === 'pending').length}</div>
+            <div className="text-2xl font-bold">{stats.pending}</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Vencen este mes</CardTitle>
+            <AlertTriangle className="w-4 h-4 text-orange-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{stats.expiringThisMonth}</div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Platforms Table */}
+      {/* Platforms Table Mejorada */}
       <Card>
         <CardHeader>
           <CardTitle>Plataformas Registradas</CardTitle>
@@ -392,17 +536,31 @@ export const PlatformManager: React.FC = () => {
                       {platform.hotel}
                     </div>
                   </TableCell>
-                  <TableCell>{platform.room}</TableCell>
+                  <TableCell className="font-mono">{platform.room}</TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">
                       <User className="w-4 h-4 text-gray-400" />
-                      {platform.user}
+                      <span className="max-w-32 truncate">{platform.user}</span>
                     </div>
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">
                       <Lock className="w-4 h-4 text-gray-400" />
-                      <span className="font-mono">••••••••</span>
+                      <span className="font-mono">
+                        {showPasswords[platform.id] ? platform.password : '••••••••'}
+                      </span>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => togglePasswordVisibility(platform.id)}
+                        className="p-1 h-auto"
+                      >
+                        {showPasswords[platform.id] ? (
+                          <EyeOff className="w-3 h-3" />
+                        ) : (
+                          <Eye className="w-3 h-3" />
+                        )}
+                      </Button>
                     </div>
                   </TableCell>
                   <TableCell>
@@ -412,9 +570,12 @@ export const PlatformManager: React.FC = () => {
                     </div>
                   </TableCell>
                   <TableCell>
-                    <Badge className={getStatusColor(platform.status)} variant="secondary">
-                      {getStatusText(platform.status)}
-                    </Badge>
+                    <div className="flex items-center gap-2">
+                      {getStatusIcon(platform.status)}
+                      <Badge className={getStatusColor(platform.status)} variant="secondary">
+                        {getStatusText(platform.status)}
+                      </Badge>
+                    </div>
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex gap-2 justify-end">
