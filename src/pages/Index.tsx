@@ -17,10 +17,6 @@ const Index = () => {
             Plataforma de Administración de
             <span className="text-blue-600 block">App Hoteles</span>
           </h1>
-          <p className="text-xl text-gray-600 mb-8">
-            Bienvenido al sistema de gestión hotelera. 
-            Administra reservas, huéspedes y servicios desde un panel centralizado.
-          </p>
           <Button size="lg" asChild>
             <a href="/cms">
               Acceder al Panel de Administración
