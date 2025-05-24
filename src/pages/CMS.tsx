@@ -6,6 +6,7 @@ import { PageManager } from '@/components/cms/PageManager';
 import { MediaManager } from '@/components/cms/MediaManager';
 import { ContentEditor } from '@/components/cms/ContentEditor';
 import { PlatformManager } from '@/components/cms/PlatformManager';
+import { SettingsManager } from '@/components/cms/SettingsManager';
 import { CMSProvider } from '@/contexts/CMSContext';
 
 const CMSContent: React.FC = () => {
@@ -27,12 +28,12 @@ const CMSContent: React.FC = () => {
         return <ContentEditor onNavigate={setCurrentView} />;
       case 'platforms':
         return <PlatformManager />;
+      case 'settings':
+        return <SettingsManager />;
       case 'users':
         return <div className="p-6"><h1>Gestión de Usuarios (Próximamente)</h1></div>;
       case 'analytics':
         return <div className="p-6"><h1>Analíticas (Próximamente)</h1></div>;
-      case 'settings':
-        return <div className="p-6"><h1>Configuración (Próximamente)</h1></div>;
       default:
         return <Dashboard onNavigate={setCurrentView} />;
     }
