@@ -14,7 +14,7 @@ const Index = () => {
             <Hotel className="w-10 h-10 text-white" />
           </div>
           <h1 className="text-5xl font-bold text-gray-900 mb-4">
-            Administración de
+            Plataforma de Administración de
             <span className="text-blue-600 block">App Hoteles</span>
           </h1>
           <p className="text-xl text-gray-600 mb-8">
