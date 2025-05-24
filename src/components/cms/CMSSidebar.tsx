@@ -8,7 +8,8 @@ import {
   Users, 
   BarChart3,
   Globe,
-  Edit
+  Edit,
+  Tv
 } from 'lucide-react';
 import {
   Sidebar,
@@ -50,6 +51,12 @@ const menuItems = [
     title: "Medios",
     view: "media",
     icon: Image,
+    roles: ['admin', 'editor']
+  },
+  {
+    title: "Plataformas",
+    view: "platforms",
+    icon: Tv,
     roles: ['admin', 'editor']
   },
   {
