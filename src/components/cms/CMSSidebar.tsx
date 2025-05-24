@@ -21,7 +21,6 @@ import {
   SidebarMenuItem,
   SidebarHeader,
 } from "@/components/ui/sidebar";
-import { useAuth } from '@/contexts/AuthContext';
 
 interface CMSSidebarProps {
   currentView?: string;
@@ -89,7 +88,8 @@ const externalItems = [
 ];
 
 export function CMSSidebar({ currentView, onNavigate }: CMSSidebarProps) {
-  const { profile, hasRole } = useAuth();
+  // Mock user with admin role for development
+  const mockUserRole = 'admin';
 
   const handleNavigation = (view: string) => {
     if (onNavigate) {
@@ -97,12 +97,21 @@ export function CMSSidebar({ currentView, onNavigate }: CMSSidebarProps) {
     }
   };
 
+  const hasRole = (requiredRole: string): boolean => {
+    const roleHierarchy: Record<string, number> = {
+      viewer: 1,
+      editor: 2,
+      admin: 3,
+    };
+    return roleHierarchy[mockUserRole] >= roleHierarchy[requiredRole];
+  };
+
   const filteredMenuItems = menuItems.filter(item => 
-    item.roles.some(role => hasRole(role as any))
+    item.roles.some(role => hasRole(role))
   );
 
   const filteredExternalItems = externalItems.filter(item => 
-    item.roles.some(role => hasRole(role as any))
+    item.roles.some(role => hasRole(role))
   );
 
   return (
