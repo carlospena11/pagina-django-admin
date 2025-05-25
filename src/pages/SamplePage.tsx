@@ -63,7 +63,7 @@ const SamplePage: React.FC<SamplePageProps> = ({ onNavigate }) => {
   }, []);
 
   const redirectFunctions = {
-    redirectWelcome: () => alert('Redirigiendo a Bienvenida'),
+    redirectWelcome: () => navigate('/welcome'),
     redirectPagVuelos: () => navigate('/flights'),
     redirectPromociones: () => alert('Redirigiendo a Promociones'),
     redirectMenu: () => alert('Redirigiendo a Menú'),
