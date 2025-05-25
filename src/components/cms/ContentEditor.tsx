@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -16,14 +15,18 @@ import {
   Edit3,
   Settings,
   ExternalLink,
-  ArrowLeft
+  ArrowLeft,
+  Palette
 } from 'lucide-react';
+import { VisualEditor } from './VisualEditor';
 
 interface ContentEditorProps {
   onNavigate?: (view: string) => void;
 }
 
 export const ContentEditor: React.FC<ContentEditorProps> = ({ onNavigate }) => {
+  const [editorMode, setEditorMode] = useState<'code' | 'visual'>('visual');
+  
   const [title, setTitle] = useState('Página de Inicio');
   const [content, setContent] = useState(`<h1>Bienvenido a Nuestro Sitio Web</h1>
 
@@ -67,6 +70,12 @@ export const ContentEditor: React.FC<ContentEditorProps> = ({ onNavigate }) => {
     setIsFullPreview(false);
   };
 
+  // Si está en modo visual, mostrar el VisualEditor
+  if (editorMode === 'visual') {
+    return <VisualEditor onNavigate={onNavigate} />;
+  }
+
+  // ... keep existing code (full preview mode)
   if (isFullPreview) {
     return (
       <div className="space-y-6">
@@ -104,6 +113,28 @@ export const ContentEditor: React.FC<ContentEditorProps> = ({ onNavigate }) => {
           <p className="text-gray-500 mt-1">Crea y edita el contenido de tus páginas</p>
         </div>
         <div className="flex gap-2">
+          {/* Mode Switcher */}
+          <div className="flex border rounded-lg">
+            <Button
+              variant={editorMode === 'visual' ? 'default' : 'ghost'}
+              size="sm"
+              onClick={() => setEditorMode('visual')}
+              className="flex items-center gap-2"
+            >
+              <Palette className="w-4 h-4" />
+              Visual
+            </Button>
+            <Button
+              variant={editorMode === 'code' ? 'default' : 'ghost'}
+              size="sm"
+              onClick={() => setEditorMode('code')}
+              className="flex items-center gap-2"
+            >
+              <Edit3 className="w-4 h-4" />
+              Código
+            </Button>
+          </div>
+          
           <Button variant="outline" onClick={handlePreview} className="flex items-center gap-2">
             <Eye className="w-4 h-4" />
             Vista Previa
@@ -283,6 +314,14 @@ export const ContentEditor: React.FC<ContentEditorProps> = ({ onNavigate }) => {
               <CardTitle>Acciones Rápidas</CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
+              <Button 
+                variant="outline" 
+                className="w-full justify-start" 
+                onClick={() => setEditorMode('visual')}
+              >
+                <Palette className="w-4 h-4 mr-2" />
+                Editor Visual
+              </Button>
               <Button variant="outline" className="w-full justify-start" onClick={() => onNavigate?.('media')}>
                 <FileText className="w-4 h-4 mr-2" />
                 Insertar Imagen
