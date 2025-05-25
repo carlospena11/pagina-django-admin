@@ -10,23 +10,27 @@ import {
   ArrowLeft,
   FileText,
   Monitor,
-  Tv
+  Tv,
+  Trash2
 } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { useCMS } from '@/contexts/CMSContext';
 import { VisualEditor } from './VisualEditor';
+import { useToast } from '@/hooks/use-toast';
 
 interface ContentEditorProps {
   onNavigate?: (view: string) => void;
 }
 
 export const ContentEditor: React.FC<ContentEditorProps> = ({ onNavigate }) => {
-  const { pages, addPage, updatePage } = useCMS();
+  const { pages, addPage, updatePage, deletePage } = useCMS();
+  const { toast } = useToast();
   const [selectedPageId, setSelectedPageId] = useState<string | null>(null);
-  const [editorMode, setEditorMode] = useState<'code' | 'visual'>('visual');
+  const [editorMode, setEditorMode] = useState<'visual' | 'code'>('visual');
   const [pageData, setPageData] = useState({
     title: '',
     slug: '',
@@ -53,7 +57,10 @@ export const ContentEditor: React.FC<ContentEditorProps> = ({ onNavigate }) => {
         ...pageData,
         lastModified: new Date().toISOString().split('T')[0]
       });
-      console.log('Página actualizada exitosamente');
+      toast({
+        title: "Página actualizada",
+        description: "La página se ha actualizado exitosamente.",
+      });
     } else {
       const newPage = {
         ...pageData,
@@ -62,7 +69,21 @@ export const ContentEditor: React.FC<ContentEditorProps> = ({ onNavigate }) => {
         views: 0
       };
       addPage(newPage);
-      console.log('Nueva página creada exitosamente');
+      toast({
+        title: "Página creada",
+        description: "La nueva página se ha creado exitosamente.",
+      });
+    }
+  };
+
+  const handleDelete = () => {
+    if (selectedPageId && selectedPage) {
+      deletePage(selectedPageId);
+      toast({
+        title: "Página eliminada",
+        description: "La página se ha eliminado exitosamente.",
+      });
+      setSelectedPageId(null);
     }
   };
 
@@ -186,6 +207,30 @@ export const ContentEditor: React.FC<ContentEditorProps> = ({ onNavigate }) => {
             <Eye className="w-4 h-4" />
             Vista Previa
           </Button>
+          {selectedPageId !== 'new' && selectedPage && (
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="destructive" className="flex items-center gap-2">
+                  <Trash2 className="w-4 h-4" />
+                  Eliminar
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Esta acción no se puede deshacer. Se eliminará permanentemente la página "{selectedPage.title}" y todos sus datos.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                  <AlertDialogAction onClick={handleDelete}>
+                    Eliminar página
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          )}
           <Button onClick={handleSave} className="flex items-center gap-2">
             <Save className="w-4 h-4" />
             Guardar
