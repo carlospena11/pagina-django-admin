@@ -179,6 +179,17 @@ export const ContentEditor: React.FC<ContentEditorProps> = ({ onNavigate }) => {
             </Card>
           ))}
         </div>
+
+        {/* Sample Page Link */}
+        <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => window.open('/sample', '_blank')}>
+          <CardContent className="p-6">
+            <div className="text-center">
+              <Monitor className="w-12 h-12 mx-auto mb-4 text-blue-600" />
+              <h3 className="text-xl font-semibold mb-2 text-blue-600">Página de Muestra</h3>
+              <p className="text-gray-500">Ver la página de muestra del hotel Hilton</p>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     );
   }
