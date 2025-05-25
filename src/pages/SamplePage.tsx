@@ -80,15 +80,15 @@ const SamplePage: React.FC<SamplePageProps> = ({ onNavigate }) => {
     <div 
       className="min-h-screen font-sans bg-cover bg-center bg-no-repeat"
       style={{
-        backgroundImage: "url('https://images.unsplash.com/photo-1566073771259-6a8506099945')"
+        backgroundImage: "url('/lovable-uploads/c5704d60-cee9-4693-aae2-b6602c41fe4f.png')"
       }}
     >
       {/* Header */}
       <div className="flex justify-between items-center p-4 lg:px-8">
         <div className="logo">
           <img 
-            src="/lovable-uploads/d66c1e8f-9241-47e5-8df8-caffa85796cf.png" 
-            alt="Hotel Hilton" 
+            src="/lovable-uploads/7ef18f32-ab7e-42e1-9f98-e87659a2649a.png" 
+            alt="Hotel Hilton San Salvador" 
             className="h-20 lg:h-32"
           />
         </div>
@@ -110,7 +110,7 @@ const SamplePage: React.FC<SamplePageProps> = ({ onNavigate }) => {
             <div 
               className="relative h-32 rounded-lg cursor-pointer transition-transform duration-300 hover:scale-105 hover:shadow-xl bg-cover bg-center"
               style={{
-                backgroundImage: "url('https://images.unsplash.com/photo-1571896349842-33c89424de2d')"
+                backgroundImage: "url('/lovable-uploads/5f928ea5-c8aa-43fd-8df4-00973152c181.png')"
               }}
               onClick={redirectFunctions.redirectWelcome}
             >
@@ -122,7 +122,7 @@ const SamplePage: React.FC<SamplePageProps> = ({ onNavigate }) => {
             <div 
               className="relative h-32 rounded-lg cursor-pointer transition-transform duration-300 hover:scale-105 hover:shadow-xl bg-cover bg-center"
               style={{
-                backgroundImage: "url('https://images.unsplash.com/photo-1556388158-158dc0eca2e8')"
+                backgroundImage: "url('/lovable-uploads/d31ddc15-a846-4c68-9a81-8add874bf9ef.png')"
               }}
               onClick={redirectFunctions.redirectPagVuelos}
             >
@@ -137,7 +137,7 @@ const SamplePage: React.FC<SamplePageProps> = ({ onNavigate }) => {
             <div 
               className="relative h-32 rounded-lg cursor-pointer transition-transform duration-300 hover:scale-105 hover:shadow-xl bg-cover bg-center"
               style={{
-                backgroundImage: "url('https://images.unsplash.com/photo-1566073771259-6a8506099945')"
+                backgroundImage: "url('/lovable-uploads/c5704d60-cee9-4693-aae2-b6602c41fe4f.png')"
               }}
               onClick={redirectFunctions.redirectPromociones}
             >
@@ -149,7 +149,7 @@ const SamplePage: React.FC<SamplePageProps> = ({ onNavigate }) => {
             <div 
               className="relative h-32 rounded-lg cursor-pointer transition-transform duration-300 hover:scale-105 hover:shadow-xl bg-cover bg-center"
               style={{
-                backgroundImage: "url('https://images.unsplash.com/photo-1414235077428-338989a2e8c0')"
+                backgroundImage: "url('/lovable-uploads/142eb2bb-b11e-4087-94f6-f23fadb2086e.png')"
               }}
               onClick={redirectFunctions.redirectMenu}
             >
@@ -161,7 +161,7 @@ const SamplePage: React.FC<SamplePageProps> = ({ onNavigate }) => {
             <div 
               className="relative h-32 rounded-lg cursor-pointer transition-transform duration-300 hover:scale-105 hover:shadow-xl bg-cover bg-center"
               style={{
-                backgroundImage: "url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4')"
+                backgroundImage: "url('/lovable-uploads/b854633c-4b3c-42d6-86f2-5da3361fef95.png')"
               }}
               onClick={redirectFunctions.redirectDescubreSV}
             >

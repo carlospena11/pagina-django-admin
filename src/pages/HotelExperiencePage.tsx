@@ -13,7 +13,7 @@ const HotelExperiencePage: React.FC = () => {
     <div 
       className="min-h-screen bg-cover bg-center bg-no-repeat flex flex-col justify-center items-center overflow-hidden"
       style={{
-        backgroundImage: "url('https://images.unsplash.com/photo-1566073771259-6a8506099945')"
+        backgroundImage: "url('/lovable-uploads/c5704d60-cee9-4693-aae2-b6602c41fe4f.png')"
       }}
     >
       {/* Back Button */}
