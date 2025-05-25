@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -10,7 +11,7 @@ import {
   ArrowLeft,
   FileText,
   Monitor,
-  Palette
+  Tv
 } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
@@ -30,7 +31,7 @@ export const ContentEditor: React.FC<ContentEditorProps> = ({ onNavigate }) => {
   const [pageData, setPageData] = useState({
     title: '',
     slug: '',
-    status: 'draft' as const,
+    status: 'draft' as 'published' | 'draft' | 'review',
     content: ''
   });
 
@@ -89,7 +90,7 @@ export const ContentEditor: React.FC<ContentEditorProps> = ({ onNavigate }) => {
               onClick={() => setEditorMode('visual')}
               className="flex items-center gap-2"
             >
-              <Palette className="w-4 h-4" />
+              <Tv className="w-4 h-4" />
               Editor Visual
             </Button>
             <Button 
@@ -171,7 +172,7 @@ export const ContentEditor: React.FC<ContentEditorProps> = ({ onNavigate }) => {
             onClick={() => setEditorMode('visual')}
             className="flex items-center gap-2"
           >
-            <Palette className="w-4 h-4" />
+            <Tv className="w-4 h-4" />
             Visual
           </Button>
           <Button 
