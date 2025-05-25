@@ -148,6 +148,73 @@ export const CMSProvider: React.FC<CMSProviderProps> = ({ children }) => {
       lastModified: '2024-01-12',
       views: 2340,
       content: '<h1>Contacto</h1><p>Información de contacto.</p>'
+    },
+    {
+      id: '5',
+      title: 'Página de Muestra',
+      slug: 'sample',
+      status: 'published',
+      author: 'Admin',
+      lastModified: '2024-01-16',
+      views: 1580,
+      content: `
+        <div class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+          <div class="container mx-auto px-4 py-16">
+            <div class="text-center mb-12">
+              <h1 class="text-5xl font-bold text-gray-900 mb-4">Página de Muestra</h1>
+              <p class="text-xl text-gray-600 max-w-3xl mx-auto">Esta es una página de ejemplo que demuestra las capacidades de nuestro sistema de gestión de contenido. Aquí puedes ver diferentes elementos y estilos que se pueden aplicar.</p>
+            </div>
+            
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+              <div class="bg-white rounded-lg shadow-lg p-6">
+                <h3 class="text-2xl font-semibold mb-4 text-blue-600">Características</h3>
+                <ul class="space-y-2 text-gray-700">
+                  <li>• Editor visual avanzado</li>
+                  <li>• Gestión de medios</li>
+                  <li>• Múltiples tipos de contenido</li>
+                  <li>• Diseño responsive</li>
+                </ul>
+              </div>
+              
+              <div class="bg-white rounded-lg shadow-lg p-6">
+                <h3 class="text-2xl font-semibold mb-4 text-green-600">Beneficios</h3>
+                <ul class="space-y-2 text-gray-700">
+                  <li>• Fácil de usar</li>
+                  <li>• Altamente personalizable</li>
+                  <li>• SEO optimizado</li>
+                  <li>• Actualizaciones en tiempo real</li>
+                </ul>
+              </div>
+              
+              <div class="bg-white rounded-lg shadow-lg p-6 md:col-span-2 lg:col-span-1">
+                <h3 class="text-2xl font-semibold mb-4 text-purple-600">Soporte</h3>
+                <ul class="space-y-2 text-gray-700">
+                  <li>• Documentación completa</li>
+                  <li>• Soporte técnico 24/7</li>
+                  <li>• Comunidad activa</li>
+                  <li>• Tutoriales en video</li>
+                </ul>
+              </div>
+            </div>
+            
+            <div class="bg-white rounded-lg shadow-lg p-8">
+              <h2 class="text-3xl font-bold text-center mb-6 text-gray-900">Contenido de Ejemplo</h2>
+              <div class="prose prose-lg max-w-none">
+                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+                
+                <h3>Subtítulo de Ejemplo</h3>
+                <p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+                
+                <blockquote class="border-l-4 border-blue-500 pl-4 italic text-gray-700">
+                  "Esta es una cita de ejemplo que muestra cómo se pueden formatear las citas en el contenido."
+                </blockquote>
+                
+                <p>Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      `
     }
   ]);
 

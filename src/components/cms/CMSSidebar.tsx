@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { 
   LayoutDashboard, 
@@ -85,12 +84,6 @@ const externalItems = [
     title: "Sitio Web",
     url: "/",
     icon: Globe,
-    roles: ['admin', 'editor', 'viewer']
-  },
-  {
-    title: "Página de Muestra",
-    url: "/sample",
-    icon: FileText,
     roles: ['admin', 'editor', 'viewer']
   },
   {
