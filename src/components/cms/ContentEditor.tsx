@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -150,7 +149,6 @@ export const ContentEditor: React.FC<ContentEditorProps> = ({ onNavigate }) => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Editor Principal */}
         <div className="lg:col-span-2 space-y-6">
           <Card>
             <CardHeader>
@@ -186,7 +184,6 @@ export const ContentEditor: React.FC<ContentEditorProps> = ({ onNavigate }) => {
             </CardContent>
           </Card>
 
-          {/* Vista Previa en Miniatura */}
           <Card>
             <CardHeader>
               <div className="flex items-center justify-between">
@@ -207,7 +204,6 @@ export const ContentEditor: React.FC<ContentEditorProps> = ({ onNavigate }) => {
             </CardHeader>
             <CardContent>
               <div className="border rounded-lg overflow-hidden bg-white">
-                {/* Barra de navegación simulada */}
                 <div className="bg-gray-50 border-b px-4 py-2 flex items-center gap-2">
                   <div className="flex gap-1">
                     <div className="w-3 h-3 bg-red-400 rounded-full"></div>
@@ -219,7 +215,6 @@ export const ContentEditor: React.FC<ContentEditorProps> = ({ onNavigate }) => {
                   </div>
                 </div>
                 
-                {/* Contenido de la vista previa */}
                 <div className="p-4 max-h-[300px] overflow-y-auto">
                   <h1 className="text-lg font-bold mb-3">{title}</h1>
                   <div 
@@ -232,9 +227,7 @@ export const ContentEditor: React.FC<ContentEditorProps> = ({ onNavigate }) => {
           </Card>
         </div>
 
-        {/* Panel Lateral */}
         <div className="space-y-6">
-          {/* Configuración de Página */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -275,7 +268,6 @@ export const ContentEditor: React.FC<ContentEditorProps> = ({ onNavigate }) => {
             </CardContent>
           </Card>
 
-          {/* Información de la Página */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -307,7 +299,6 @@ export const ContentEditor: React.FC<ContentEditorProps> = ({ onNavigate }) => {
             </CardContent>
           </Card>
 
-          {/* Acciones Rápidas */}
           <Card>
             <CardHeader>
               <CardTitle>Acciones Rápidas</CardTitle>
