@@ -48,11 +48,9 @@ export const ContentEditor: React.FC<ContentEditorProps> = ({ onNavigate }) => {
 
   const handleSave = () => {
     console.log('Guardando contenido...', { title, content, slug, status });
-    // Aquí iría la lógica para guardar el contenido
   };
 
   const handlePreview = () => {
-    // Aquí iría la lógica para mostrar la vista previa
     if (onNavigate) {
       onNavigate('preview');
     }
@@ -76,7 +74,7 @@ export const ContentEditor: React.FC<ContentEditorProps> = ({ onNavigate }) => {
     return <VisualEditor onNavigate={onNavigate} />;
   }
 
-  // ... keep existing code (full preview mode)
+  // Vista previa completa
   if (isFullPreview) {
     return (
       <div className="space-y-6">
@@ -101,7 +99,7 @@ export const ContentEditor: React.FC<ContentEditorProps> = ({ onNavigate }) => {
               />
             </div>
           </CardContent>
-        </div>
+        </Card>
       </div>
     );
   }
