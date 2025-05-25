@@ -12,7 +12,8 @@ import {
   ArrowLeft,
   Monitor,
   Tablet,
-  Smartphone
+  Smartphone,
+  Tv
 } from 'lucide-react';
 import { PageSelector } from './PageSelector';
 import { DragDropToolbar } from './DragDropToolbar';
@@ -27,10 +28,11 @@ interface VisualEditorProps {
 export const VisualEditor: React.FC<VisualEditorProps> = ({ onNavigate }) => {
   const { pages, updatePage } = useCMS();
   const [selectedPageId, setSelectedPageId] = useState<string | null>(null);
-  const [viewMode, setViewMode] = useState<'desktop' | 'tablet' | 'mobile'>('desktop');
+  const [viewMode, setViewMode] = useState<'tv' | 'desktop' | 'tablet' | 'mobile'>('tv');
   const [isDragging, setIsDragging] = useState(false);
   const [selectedElement, setSelectedElement] = useState<string | null>(null);
   const [showImageLibrary, setShowImageLibrary] = useState(false);
+  const [showPreview, setShowPreview] = useState(true);
   const [elements, setElements] = useState<any[]>([]);
   const canvasRef = useRef<HTMLDivElement>(null);
 
@@ -58,12 +60,17 @@ export const VisualEditor: React.FC<VisualEditorProps> = ({ onNavigate }) => {
         type: elementType,
         x,
         y,
-        width: elementType === 'text' ? 200 : 150,
-        height: elementType === 'text' ? 40 : 100,
-        content: elementType === 'text' ? 'Nuevo texto' : '/placeholder.svg',
+        width: elementType === 'text' ? 400 : 300,
+        height: elementType === 'text' ? 60 : 200,
+        content: elementType === 'text' ? 'Nuevo texto para TV' : 
+                elementType === 'heading' ? 'Título para TV' :
+                elementType === 'button' ? 'Botón de TV' : '/placeholder.svg',
         styles: {
-          fontSize: elementType === 'text' ? '16px' : undefined,
-          fontWeight: elementType === 'text' ? 'normal' : undefined,
+          fontSize: elementType === 'text' ? '24px' : 
+                  elementType === 'heading' ? '48px' : '20px',
+          fontWeight: elementType === 'heading' ? 'bold' : 'normal',
+          color: '#ffffff',
+          textShadow: '2px 2px 4px rgba(0,0,0,0.8)'
         }
       };
       
@@ -93,13 +100,22 @@ export const VisualEditor: React.FC<VisualEditorProps> = ({ onNavigate }) => {
 
   const getViewportClass = () => {
     switch (viewMode) {
+      case 'tv':
+        return 'w-full aspect-[16/9] max-w-7xl';
       case 'tablet':
-        return 'max-w-2xl';
+        return 'max-w-2xl aspect-[4/3]';
       case 'mobile':
-        return 'max-w-sm';
+        return 'max-w-sm aspect-[9/16]';
       default:
-        return 'max-w-6xl';
+        return 'max-w-6xl aspect-[16/10]';
     }
+  };
+
+  const getCanvasBackground = () => {
+    if (viewMode === 'tv') {
+      return 'bg-gradient-to-br from-gray-900 via-gray-800 to-black';
+    }
+    return 'bg-white';
   };
 
   if (!selectedPageId) {
@@ -126,7 +142,7 @@ export const VisualEditor: React.FC<VisualEditorProps> = ({ onNavigate }) => {
             Volver
           </Button>
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Editor Visual</h1>
+            <h1 className="text-3xl font-bold text-gray-900">Editor Visual para TV Android</h1>
             <p className="text-gray-500">
               Editando: {selectedPage?.title}
               <Badge className="ml-2" variant="secondary">
@@ -138,6 +154,14 @@ export const VisualEditor: React.FC<VisualEditorProps> = ({ onNavigate }) => {
         
         <div className="flex gap-2">
           <div className="flex border rounded-lg">
+            <Button
+              variant={viewMode === 'tv' ? 'default' : 'ghost'}
+              size="sm"
+              onClick={() => setViewMode('tv')}
+              title="Vista TV Android"
+            >
+              <Tv className="w-4 h-4" />
+            </Button>
             <Button
               variant={viewMode === 'desktop' ? 'default' : 'ghost'}
               size="sm"
@@ -161,15 +185,20 @@ export const VisualEditor: React.FC<VisualEditorProps> = ({ onNavigate }) => {
             </Button>
           </div>
           
+          <Button 
+            variant={showPreview ? 'default' : 'outline'} 
+            className="flex items-center gap-2"
+            onClick={() => setShowPreview(!showPreview)}
+          >
+            <Eye className="w-4 h-4" />
+            {showPreview ? 'Ocultar Vista Previa' : 'Mostrar Vista Previa'}
+          </Button>
+          
           <Button variant="outline" className="flex items-center gap-2">
             <Undo className="w-4 h-4" />
           </Button>
           <Button variant="outline" className="flex items-center gap-2">
             <Redo className="w-4 h-4" />
-          </Button>
-          <Button variant="outline" className="flex items-center gap-2">
-            <Eye className="w-4 h-4" />
-            Vista Previa
           </Button>
           <Button onClick={handleSave} className="flex items-center gap-2">
             <Save className="w-4 h-4" />
@@ -188,45 +217,124 @@ export const VisualEditor: React.FC<VisualEditorProps> = ({ onNavigate }) => {
         </div>
 
         {/* Canvas */}
-        <div className="col-span-8">
+        <div className={showPreview ? "col-span-6" : "col-span-8"}>
           <Card className="min-h-[600px]">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Tv className="w-5 h-5" />
+                Canvas de Edición - {viewMode.toUpperCase()}
+              </CardTitle>
+            </CardHeader>
             <CardContent className="p-0">
-              <div className={`mx-auto transition-all duration-300 ${getViewportClass()}`}>
-                <div
-                  ref={canvasRef}
-                  className="relative min-h-[600px] bg-white border-2 border-dashed border-gray-200 overflow-hidden"
-                  onDragOver={(e) => e.preventDefault()}
-                  onDrop={handleDrop}
-                  style={{ 
-                    backgroundImage: isDragging ? 'radial-gradient(circle, #e5e7eb 1px, transparent 1px)' : 'none',
-                    backgroundSize: isDragging ? '20px 20px' : 'auto'
-                  }}
-                >
-                  {/* Rendered Elements */}
-                  {elements.map((element) => (
-                    <EditableElement
-                      key={element.id}
-                      element={element}
-                      isSelected={selectedElement === element.id}
-                      onSelect={setSelectedElement}
-                      onUpdate={handleElementUpdate}
-                    />
-                  ))}
-                  
-                  {/* Drop Zone Hint */}
-                  {isDragging && elements.length === 0 && (
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="text-center text-gray-400">
-                        <div className="text-2xl mb-2">📋</div>
-                        <p>Arrastra elementos aquí para comenzar</p>
+              <div className="flex justify-center p-4">
+                <div className={`transition-all duration-300 ${getViewportClass()}`}>
+                  <div
+                    ref={canvasRef}
+                    className={`relative w-full h-full border-2 border-dashed border-gray-200 overflow-hidden ${getCanvasBackground()}`}
+                    onDragOver={(e) => e.preventDefault()}
+                    onDrop={handleDrop}
+                    style={{ 
+                      backgroundImage: isDragging ? 'radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px)' : 'none',
+                      backgroundSize: isDragging ? '30px 30px' : 'auto',
+                      minHeight: viewMode === 'tv' ? '540px' : '400px'
+                    }}
+                  >
+                    {/* TV Frame Indicator */}
+                    {viewMode === 'tv' && (
+                      <div className="absolute top-2 left-2 bg-black bg-opacity-50 text-white px-2 py-1 rounded text-xs">
+                        TV Android 16:9
                       </div>
-                    </div>
-                  )}
+                    )}
+                    
+                    {/* Rendered Elements */}
+                    {elements.map((element) => (
+                      <EditableElement
+                        key={element.id}
+                        element={element}
+                        isSelected={selectedElement === element.id}
+                        onSelect={setSelectedElement}
+                        onUpdate={handleElementUpdate}
+                      />
+                    ))}
+                    
+                    {/* Drop Zone Hint */}
+                    {isDragging && elements.length === 0 && (
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <div className="text-center text-white">
+                          <div className="text-4xl mb-4">📺</div>
+                          <p className="text-xl">Arrastra elementos aquí para la TV</p>
+                          <p className="text-sm opacity-75 mt-2">Diseño optimizado para Android TV</p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             </CardContent>
           </Card>
         </div>
+
+        {/* Preview Panel */}
+        {showPreview && (
+          <div className="col-span-2">
+            <Card className="h-full">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Eye className="w-5 h-5" />
+                  Vista Previa
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="bg-black rounded-lg p-3 text-white text-xs">
+                    <div className="text-center mb-2">📺 TV Android</div>
+                    <div className={`w-full aspect-video bg-gradient-to-br from-gray-800 to-black rounded border relative overflow-hidden`}>
+                      {elements.map((element) => (
+                        <div
+                          key={`preview-${element.id}`}
+                          className="absolute"
+                          style={{
+                            left: `${(element.x / 1000) * 100}%`,
+                            top: `${(element.y / 600) * 100}%`,
+                            width: `${(element.width / 1000) * 100}%`,
+                            height: `${(element.height / 600) * 100}%`,
+                            fontSize: '4px',
+                            color: element.styles?.color || 'white'
+                          }}
+                        >
+                          {element.type === 'text' && (
+                            <div className="text-white text-xs truncate">
+                              {element.content}
+                            </div>
+                          )}
+                          {element.type === 'heading' && (
+                            <div className="text-white text-xs font-bold truncate">
+                              {element.content}
+                            </div>
+                          )}
+                          {element.type === 'image' && (
+                            <div className="bg-gray-600 w-full h-full rounded"></div>
+                          )}
+                          {element.type === 'button' && (
+                            <div className="bg-blue-600 w-full h-full rounded text-center text-white text-xs">
+                              BTN
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  
+                  <div className="text-xs text-gray-500 space-y-1">
+                    <p>• Elementos: {elements.length}</p>
+                    <p>• Modo: {viewMode}</p>
+                    <p>• Resolución: 1920x1080</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
 
         {/* Properties Panel */}
         <div className="col-span-2">
@@ -234,21 +342,35 @@ export const VisualEditor: React.FC<VisualEditorProps> = ({ onNavigate }) => {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Settings className="w-5 h-5" />
-                Propiedades
+                Propiedades TV
               </CardTitle>
             </CardHeader>
             <CardContent>
               {selectedElement ? (
                 <div className="space-y-4">
                   <p className="text-sm text-gray-600">
-                    Elemento seleccionado: {elements.find(el => el.id === selectedElement)?.type}
+                    Elemento: {elements.find(el => el.id === selectedElement)?.type}
                   </p>
-                  {/* Properties form would go here */}
+                  <div className="text-xs text-gray-500 space-y-1">
+                    <p>• Optimizado para TV</p>
+                    <p>• Texto grande y legible</p>
+                    <p>• Contraste alto</p>
+                    <p>• Navegación por control</p>
+                  </div>
                 </div>
               ) : (
-                <p className="text-sm text-gray-500">
-                  Selecciona un elemento para editar sus propiedades
-                </p>
+                <div className="space-y-3">
+                  <p className="text-sm text-gray-500">
+                    Selecciona un elemento para editar
+                  </p>
+                  <div className="text-xs text-gray-400 space-y-1">
+                    <p>💡 Consejos para TV:</p>
+                    <p>• Usa texto grande (24px+)</p>
+                    <p>• Colores contrastantes</p>
+                    <p>• Espaciado generoso</p>
+                    <p>• Botones grandes</p>
+                  </div>
+                </div>
               )}
             </CardContent>
           </Card>
