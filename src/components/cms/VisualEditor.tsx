@@ -9,7 +9,8 @@ import {
   Undo, 
   Redo,
   ArrowLeft,
-  Tv
+  Tv,
+  Code
 } from 'lucide-react';
 import { PageSelector } from './PageSelector';
 import { DragDropToolbar } from './DragDropToolbar';
@@ -27,6 +28,7 @@ export const VisualEditor: React.FC<VisualEditorProps> = ({ onNavigate }) => {
   const { toast } = useToast();
   const [selectedPageId, setSelectedPageId] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
+  const [dragElementType, setDragElementType] = useState<string>('');
   const [selectedElement, setSelectedElement] = useState<string | null>(null);
   const [showImageLibrary, setShowImageLibrary] = useState(false);
   const [showPreview, setShowPreview] = useState(true);
@@ -40,13 +42,15 @@ export const VisualEditor: React.FC<VisualEditorProps> = ({ onNavigate }) => {
     if (selectedPage && selectedPage.content) {
       try {
         const pageContent = JSON.parse(selectedPage.content);
-        if (pageContent.elements) {
+        if (pageContent.elements && Array.isArray(pageContent.elements)) {
+          console.log('📄 Loading elements from page:', pageContent.elements);
           setElements(pageContent.elements);
         } else {
+          console.log('📄 No elements found, starting fresh');
           setElements([]);
         }
       } catch (e) {
-        // If content is not JSON, start with empty elements
+        console.log('📄 Content is not JSON, starting with empty elements');
         setElements([]);
       }
     } else {
@@ -55,76 +59,129 @@ export const VisualEditor: React.FC<VisualEditorProps> = ({ onNavigate }) => {
   }, [selectedPage]);
 
   const handleDragStart = useCallback((elementType: string) => {
-    console.log('Drag start:', elementType);
+    console.log('🎯 Drag start detected:', elementType);
     setIsDragging(true);
+    setDragElementType(elementType);
   }, []);
 
   const handleDragEnd = useCallback(() => {
-    console.log('Drag end');
+    console.log('🏁 Drag ended');
     setIsDragging(false);
+    setDragElementType('');
   }, []);
 
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
-    console.log('Drop event triggered');
+    e.stopPropagation();
     
-    const elementType = e.dataTransfer.getData('text/plain');
+    console.log('💧 Drop event triggered on canvas');
+    
+    let elementType = '';
+    
+    // Try to get data from different formats
+    try {
+      const jsonData = e.dataTransfer.getData('application/json');
+      if (jsonData) {
+        const parsed = JSON.parse(jsonData);
+        elementType = parsed.type;
+      }
+    } catch (e) {
+      console.log('No JSON data found');
+    }
+    
+    if (!elementType) {
+      elementType = e.dataTransfer.getData('text/plain');
+    }
+    
+    if (!elementType && dragElementType) {
+      elementType = dragElementType;
+    }
+    
     const rect = canvasRef.current?.getBoundingClientRect();
     
-    console.log('Drop event:', elementType, rect);
+    console.log('💧 Drop details:', { elementType, rect, dragElementType });
     
     if (rect && elementType) {
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
+      const x = Math.max(20, Math.min(e.clientX - rect.left - 100, rect.width - 220));
+      const y = Math.max(20, Math.min(e.clientY - rect.top - 25, rect.height - 100));
       
       const newElement = {
         id: `element-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
         type: elementType,
-        x: Math.max(0, Math.min(x - 50, rect.width - 250)),
-        y: Math.max(0, Math.min(y - 25, rect.height - 150)),
-        width: elementType === 'text' ? 300 : 250,
+        x: x,
+        y: y,
+        width: elementType === 'text' ? 300 : 
+               elementType === 'heading' ? 400 :
+               elementType === 'button' ? 150 : 250,
         height: elementType === 'text' ? 40 : 
                 elementType === 'heading' ? 60 :
-                elementType === 'button' ? 40 : 150,
-        content: elementType === 'text' ? 'Nuevo texto' : 
-                elementType === 'heading' ? 'Título' :
-                elementType === 'button' ? 'Botón' : 
-                elementType === 'image' ? 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=400' : 'Elemento',
+                elementType === 'button' ? 40 : 
+                elementType === 'image' ? 200 : 100,
+        content: elementType === 'text' ? 'Haz doble clic para editar' : 
+                elementType === 'heading' ? 'Título Principal' :
+                elementType === 'button' ? 'Mi Botón' : 
+                elementType === 'image' ? 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=400' : 
+                elementType === 'video' ? 'Video aquí' :
+                elementType === 'link' ? 'Enlace' :
+                elementType === 'list' ? 'Elemento de lista' :
+                elementType === 'container' ? 'Contenedor' : 'Nuevo elemento',
         styles: {
           fontSize: elementType === 'text' ? '16px' : 
                   elementType === 'heading' ? '32px' : '14px',
           fontWeight: elementType === 'heading' ? 'bold' : 'normal',
-          color: '#ffffff'
+          color: '#ffffff',
+          backgroundColor: elementType === 'button' ? '#3b82f6' : 'transparent'
         }
       };
       
-      console.log('Adding new element:', newElement);
-      setElements(prev => [...prev, newElement]);
+      console.log('✨ Adding new element:', newElement);
+      setElements(prev => {
+        const newElements = [...prev, newElement];
+        console.log('📝 Updated elements array:', newElements);
+        return newElements;
+      });
       setSelectedElement(newElement.id);
       
       toast({
-        title: "Elemento añadido",
-        description: `Se ha añadido un ${elementType} al canvas.`,
+        title: "¡Elemento añadido!",
+        description: `Se ha añadido ${elementType} al canvas. Haz doble clic para editar.`,
+      });
+    } else {
+      console.log('❌ Drop failed - missing elementType or rect', { elementType, rect });
+      toast({
+        title: "Error al añadir elemento",
+        description: "No se pudo determinar el tipo de elemento o la posición.",
+        variant: "destructive"
       });
     }
-    setIsDragging(false);
-  }, [toast]);
+    
+    handleDragEnd();
+  }, [dragElementType, toast, handleDragEnd]);
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
+    e.stopPropagation();
     e.dataTransfer.dropEffect = 'copy';
   }, []);
 
   const handleElementUpdate = useCallback((elementId: string, updates: any) => {
-    console.log('Updating element:', elementId, updates);
-    setElements(prev => prev.map(el => 
-      el.id === elementId ? { ...el, ...updates } : el
-    ));
+    console.log('🔄 Updating element:', elementId, updates);
+    setElements(prev => {
+      const updated = prev.map(el => 
+        el.id === elementId ? { ...el, ...updates } : el
+      );
+      console.log('📝 Elements after update:', updated);
+      return updated;
+    });
   }, []);
 
   const handleElementDelete = useCallback((elementId: string) => {
-    console.log('Deleting element:', elementId);
-    setElements(prev => prev.filter(el => el.id !== elementId));
+    console.log('🗑️ Deleting element:', elementId);
+    setElements(prev => {
+      const filtered = prev.filter(el => el.id !== elementId);
+      console.log('📝 Elements after delete:', filtered);
+      return filtered;
+    });
     setSelectedElement(null);
     toast({
       title: "Elemento eliminado",
@@ -133,8 +190,8 @@ export const VisualEditor: React.FC<VisualEditorProps> = ({ onNavigate }) => {
   }, [toast]);
 
   const handleCanvasClick = useCallback((e: React.MouseEvent) => {
-    // Only deselect if clicking directly on the canvas, not on child elements
     if (e.target === e.currentTarget) {
+      console.log('📍 Canvas clicked - deselecting elements');
       setSelectedElement(null);
     }
   }, []);
@@ -143,17 +200,24 @@ export const VisualEditor: React.FC<VisualEditorProps> = ({ onNavigate }) => {
     if (selectedPage) {
       const pageContent = {
         elements,
-        layout: 'tv'
+        layout: 'tv',
+        version: '1.0'
       };
+      console.log('💾 Saving page content:', pageContent);
       updatePage(selectedPage.id, { 
         content: JSON.stringify(pageContent),
         lastModified: new Date().toISOString().split('T')[0]
       });
       toast({
-        title: "Página guardada",
-        description: "La página se ha guardado exitosamente.",
+        title: "¡Página guardada!",
+        description: `Se han guardado ${elements.length} elementos en la página.`,
       });
-      console.log('Página guardada exitosamente');
+    }
+  };
+
+  const switchToCodeEditor = () => {
+    if (onNavigate) {
+      onNavigate('editor');
     }
   };
 
@@ -184,24 +248,31 @@ export const VisualEditor: React.FC<VisualEditorProps> = ({ onNavigate }) => {
             <h1 className="text-3xl font-bold text-gray-900">Editor Visual</h1>
             <p className="text-gray-500">
               Editando: {selectedPage?.title}
-              <Badge className="ml-2" variant="secondary">
-                {selectedPage?.status}
+              <Badge className="ml-2" variant={selectedPage?.status === 'published' ? 'default' : 'secondary'}>
+                {selectedPage?.status === 'published' ? 'Publicado' : 
+                 selectedPage?.status === 'draft' ? 'Borrador' : 'En Revisión'}
               </Badge>
             </p>
           </div>
         </div>
         
         <div className="flex gap-2">
-          <div className="flex border rounded-lg">
-            <Button
-              variant="default"
-              size="sm"
-              className="flex items-center gap-2"
-            >
-              <Tv className="w-4 h-4" />
-              TV
-            </Button>
-          </div>
+          <Button
+            variant="default"
+            className="flex items-center gap-2"
+          >
+            <Tv className="w-4 h-4" />
+            Modo TV
+          </Button>
+          
+          <Button 
+            variant="outline"
+            onClick={switchToCodeEditor}
+            className="flex items-center gap-2"
+          >
+            <Code className="w-4 h-4" />
+            Editor Código
+          </Button>
           
           <Button 
             variant={showPreview ? 'default' : 'outline'} 
@@ -209,18 +280,18 @@ export const VisualEditor: React.FC<VisualEditorProps> = ({ onNavigate }) => {
             onClick={() => setShowPreview(!showPreview)}
           >
             <Eye className="w-4 h-4" />
-            {showPreview ? 'Ocultar Vista Previa' : 'Mostrar Vista Previa'}
+            {showPreview ? 'Ocultar' : 'Mostrar'} Vista Previa
           </Button>
           
-          <Button variant="outline" className="flex items-center gap-2">
+          <Button variant="outline" className="flex items-center gap-2" disabled>
             <Undo className="w-4 h-4" />
           </Button>
-          <Button variant="outline" className="flex items-center gap-2">
+          <Button variant="outline" className="flex items-center gap-2" disabled>
             <Redo className="w-4 h-4" />
           </Button>
           <Button onClick={handleSave} className="flex items-center gap-2">
             <Save className="w-4 h-4" />
-            Guardar
+            Guardar ({elements.length})
           </Button>
         </div>
       </div>
@@ -238,31 +309,48 @@ export const VisualEditor: React.FC<VisualEditorProps> = ({ onNavigate }) => {
         <div className={showPreview ? "col-span-7" : "col-span-10"}>
           <Card className="min-h-[600px]">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Tv className="w-5 h-5" />
-                Canvas de Edición - TV
-                {isDragging && (
-                  <Badge variant="secondary" className="ml-2">
-                    Arrastrando...
-                  </Badge>
-                )}
+              <CardTitle className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Tv className="w-5 h-5" />
+                  Canvas de Edición - TV
+                  {isDragging && (
+                    <Badge variant="secondary" className="ml-2 animate-pulse">
+                      Arrastrando {dragElementType}...
+                    </Badge>
+                  )}
+                </div>
+                <div className="text-sm text-gray-500">
+                  {elements.length} elemento{elements.length !== 1 ? 's' : ''}
+                </div>
               </CardTitle>
             </CardHeader>
             <CardContent className="p-0">
               <div className="flex justify-center p-4">
-                <div className="transition-all duration-300 max-w-6xl aspect-video">
+                <div className="transition-all duration-300 w-full max-w-6xl">
                   <div
                     ref={canvasRef}
-                    className={`relative w-full h-full border-2 ${
-                      isDragging ? 'border-blue-400 bg-blue-50' : 'border-dashed border-gray-200'
-                    } overflow-hidden bg-black transition-all duration-200`}
+                    className={`relative w-full aspect-video border-4 ${
+                      isDragging 
+                        ? 'border-blue-500 bg-blue-900/20 shadow-lg' 
+                        : 'border-dashed border-gray-300'
+                    } overflow-hidden bg-black transition-all duration-200 rounded-lg`}
                     onDragOver={handleDragOver}
                     onDrop={handleDrop}
+                    onDragEnter={(e) => {
+                      e.preventDefault();
+                      console.log('🎯 Drag enter canvas');
+                    }}
+                    onDragLeave={(e) => {
+                      e.preventDefault();
+                      console.log('🚪 Drag leave canvas');
+                    }}
                     onClick={handleCanvasClick}
                     style={{ 
-                      backgroundImage: isDragging ? 'radial-gradient(circle, rgba(59, 130, 246, 0.1) 1px, transparent 1px)' : 'none',
-                      backgroundSize: isDragging ? '20px 20px' : 'auto',
-                      minHeight: '400px'
+                      backgroundImage: isDragging 
+                        ? 'radial-gradient(circle, rgba(59, 130, 246, 0.2) 2px, transparent 2px)' 
+                        : 'none',
+                      backgroundSize: isDragging ? '30px 30px' : 'auto',
+                      minHeight: '500px'
                     }}
                   >
                     {/* Rendered Elements */}
@@ -278,19 +366,31 @@ export const VisualEditor: React.FC<VisualEditorProps> = ({ onNavigate }) => {
                     ))}
                     
                     {/* Drop Zone Hint */}
-                    {(isDragging || elements.length === 0) && (
-                      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                        <div className="text-center text-white">
-                          <div className="text-4xl mb-4">📺</div>
-                          <p className="text-xl">
-                            {isDragging ? 'Suelta el elemento aquí' : 'Arrastra elementos para TV'}
-                          </p>
-                          <p className="text-sm opacity-75 mt-2">
-                            {isDragging ? 'Posiciona tu elemento en el canvas' : 'Diseña tu interfaz de televisión'}
-                          </p>
-                        </div>
+                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                      <div className="text-center text-white">
+                        {isDragging ? (
+                          <>
+                            <div className="text-6xl mb-4 animate-bounce">📺</div>
+                            <p className="text-2xl font-bold">
+                              Suelta aquí tu {dragElementType}
+                            </p>
+                            <p className="text-lg opacity-75 mt-2">
+                              Posiciónalo donde quieras en el canvas
+                            </p>
+                          </>
+                        ) : elements.length === 0 ? (
+                          <>
+                            <div className="text-4xl mb-4">📺</div>
+                            <p className="text-xl">
+                              Arrastra elementos desde la barra lateral
+                            </p>
+                            <p className="text-sm opacity-75 mt-2">
+                              Diseña tu interfaz de televisión aquí
+                            </p>
+                          </>
+                        ) : null}
                       </div>
-                    )}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -311,28 +411,28 @@ export const VisualEditor: React.FC<VisualEditorProps> = ({ onNavigate }) => {
               <CardContent>
                 <div className="space-y-4">
                   <div className="bg-gray-100 rounded-lg p-3">
-                    <div className="text-center mb-2 text-xs text-gray-600">TV</div>
+                    <div className="text-center mb-2 text-xs text-gray-600">Pantalla TV</div>
                     <div className="w-full bg-black rounded border relative overflow-hidden aspect-video">
                       {elements.map((element) => (
                         <div
                           key={`preview-${element.id}`}
-                          className="absolute"
+                          className="absolute text-white"
                           style={{
                             left: `${(element.x / 1000) * 100}%`,
                             top: `${(element.y / 600) * 100}%`,
                             width: `${(element.width / 1000) * 100}%`,
                             height: `${(element.height / 600) * 100}%`,
-                            fontSize: '4px',
-                            color: element.styles?.color || '#fff'
+                            fontSize: '6px',
+                            backgroundColor: element.type === 'button' ? '#3b82f6' : 'transparent'
                           }}
                         >
                           {element.type === 'text' && (
-                            <div className="text-xs truncate text-white">
+                            <div className="text-white text-xs truncate p-1">
                               {element.content}
                             </div>
                           )}
                           {element.type === 'heading' && (
-                            <div className="text-xs font-bold truncate text-white">
+                            <div className="text-white text-xs font-bold truncate p-1">
                               {element.content}
                             </div>
                           )}
@@ -341,7 +441,12 @@ export const VisualEditor: React.FC<VisualEditorProps> = ({ onNavigate }) => {
                           )}
                           {element.type === 'button' && (
                             <div className="bg-blue-500 w-full h-full rounded text-center text-white text-xs flex items-center justify-center">
-                              BTN
+                              {element.content}
+                            </div>
+                          )}
+                          {element.type === 'video' && (
+                            <div className="bg-gray-800 w-full h-full rounded flex items-center justify-center">
+                              <div className="text-xs">📹</div>
                             </div>
                           )}
                         </div>
@@ -351,9 +456,24 @@ export const VisualEditor: React.FC<VisualEditorProps> = ({ onNavigate }) => {
                   
                   <div className="text-xs text-gray-500 space-y-1">
                     <p>• Elementos: {elements.length}</p>
-                    <p>• Modo: TV</p>
+                    <p>• Modo: TV Panorámico</p>
                     <p>• Seleccionado: {selectedElement ? '1' : '0'}</p>
+                    <p>• Estado: {isDragging ? 'Arrastrando' : 'Listo'}</p>
                   </div>
+                  
+                  {selectedPage?.slug && (
+                    <div className="pt-2 border-t">
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="w-full"
+                        onClick={() => window.open(`/${selectedPage.slug}`, '_blank')}
+                      >
+                        <Eye className="w-3 h-3 mr-1" />
+                        Ver en Producción
+                      </Button>
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>

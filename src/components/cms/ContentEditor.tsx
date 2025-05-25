@@ -89,7 +89,10 @@ export const ContentEditor: React.FC<ContentEditorProps> = ({ onNavigate }) => {
   };
 
   const handlePreview = () => {
-    console.log('Vista previa de la página');
+    if (selectedPage && selectedPage.slug) {
+      // Open page in new tab
+      window.open(`/${selectedPage.slug}`, '_blank');
+    }
   };
 
   // Redirect to Visual Editor if visual mode is selected
@@ -155,6 +158,22 @@ export const ContentEditor: React.FC<ContentEditorProps> = ({ onNavigate }) => {
                   <p>Autor: {page.author}</p>
                   <p>Última modificación: {page.lastModified}</p>
                   <p>Vistas: {page.views.toLocaleString()}</p>
+                </div>
+                <div className="mt-4">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (page.slug) {
+                        window.open(`/${page.slug}`, '_blank');
+                      }
+                    }}
+                    className="w-full"
+                  >
+                    <Eye className="w-4 h-4 mr-2" />
+                    Ver en Producción
+                  </Button>
                 </div>
               </CardContent>
             </Card>

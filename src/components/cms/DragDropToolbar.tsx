@@ -25,14 +25,16 @@ export const DragDropToolbar: React.FC<DragDropToolbarProps> = ({
   onShowImageLibrary 
 }) => {
   const handleDragStart = (e: React.DragEvent, elementType: string) => {
-    console.log('Drag start:', elementType);
-    e.dataTransfer.setData('text/plain', elementType);
+    console.log('🚀 Drag start:', elementType);
+    e.dataTransfer.setData('application/json', JSON.stringify({ type: elementType }));
+    e.dataTransfer.setData('text/plain', elementType); // Fallback
     e.dataTransfer.effectAllowed = 'copy';
     onDragStart(elementType);
   };
 
   const handleDragEnd = (e: React.DragEvent) => {
-    console.log('Drag end');
+    console.log('🏁 Drag end');
+    e.dataTransfer.clearData();
   };
 
   const elements = [
@@ -40,49 +42,57 @@ export const DragDropToolbar: React.FC<DragDropToolbarProps> = ({
       type: 'text',
       icon: Type,
       label: 'Texto',
-      description: 'Añadir texto editable'
+      description: 'Añadir texto editable',
+      color: 'text-blue-600'
     },
     {
       type: 'heading',
       icon: AlignLeft,
       label: 'Título',
-      description: 'Título principal'
+      description: 'Título principal',
+      color: 'text-purple-600'
     },
     {
       type: 'image',
       icon: Image,
       label: 'Imagen',
-      description: 'Imagen desde librería'
+      description: 'Imagen desde librería',
+      color: 'text-green-600'
     },
     {
       type: 'button',
       icon: Square,
       label: 'Botón',
-      description: 'Botón interactivo'
+      description: 'Botón interactivo',
+      color: 'text-orange-600'
     },
     {
       type: 'video',
       icon: Video,
       label: 'Video',
-      description: 'Reproductor de video'
+      description: 'Reproductor de video',
+      color: 'text-red-600'
     },
     {
       type: 'link',
       icon: Link,
       label: 'Enlace',
-      description: 'Enlace a otra página'
+      description: 'Enlace a otra página',
+      color: 'text-cyan-600'
     },
     {
       type: 'list',
       icon: List,
       label: 'Lista',
-      description: 'Lista de elementos'
+      description: 'Lista de elementos',
+      color: 'text-pink-600'
     },
     {
       type: 'container',
       icon: Layers,
       label: 'Contenedor',
-      description: 'Grupo de elementos'
+      description: 'Grupo de elementos',
+      color: 'text-indigo-600'
     }
   ];
 
@@ -92,7 +102,7 @@ export const DragDropToolbar: React.FC<DragDropToolbarProps> = ({
         <CardHeader>
           <CardTitle className="text-sm flex items-center gap-2">
             <Palette className="w-4 h-4" />
-            Elementos
+            Elementos Disponibles
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-2">
@@ -102,16 +112,20 @@ export const DragDropToolbar: React.FC<DragDropToolbarProps> = ({
             return (
               <div
                 key={element.type}
-                draggable
+                draggable={true}
                 onDragStart={(e) => handleDragStart(e, element.type)}
                 onDragEnd={handleDragEnd}
-                className="flex items-center gap-3 p-3 border rounded-lg cursor-grab hover:bg-gray-50 hover:border-blue-300 transition-all group active:cursor-grabbing select-none"
-                title={element.description}
+                className="flex items-center gap-3 p-3 border-2 border-dashed border-gray-200 rounded-lg cursor-grab hover:bg-blue-50 hover:border-blue-300 transition-all group active:cursor-grabbing select-none bg-white shadow-sm"
+                title={`Arrastra para añadir: ${element.description}`}
+                style={{ touchAction: 'none' }}
               >
-                <Icon className="w-5 h-5 text-gray-600 group-hover:text-blue-600" />
+                <Icon className={`w-5 h-5 ${element.color} group-hover:scale-110 transition-transform`} />
                 <div className="flex-1">
-                  <p className="text-sm font-medium">{element.label}</p>
+                  <p className="text-sm font-medium text-gray-900">{element.label}</p>
                   <p className="text-xs text-gray-500">{element.description}</p>
+                </div>
+                <div className="text-xs text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity">
+                  ↗️ Arrastra
                 </div>
               </div>
             );
@@ -141,14 +155,15 @@ export const DragDropToolbar: React.FC<DragDropToolbarProps> = ({
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-sm">Guía</CardTitle>
+          <CardTitle className="text-sm">Guía de Uso</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="text-xs text-gray-600 space-y-2">
-            <p>🖱️ Arrastra elementos al canvas</p>
-            <p>✏️ Haz doble clic para editar</p>
-            <p>🎨 Usa los controles para mover</p>
-            <p>💾 No olvides guardar</p>
+            <p>🖱️ <strong>Arrastra</strong> elementos al canvas negro</p>
+            <p>✏️ <strong>Doble clic</strong> para editar texto</p>
+            <p>🎨 <strong>Clic simple</strong> para seleccionar y mover</p>
+            <p>🗑️ <strong>Botón eliminar</strong> cuando esté seleccionado</p>
+            <p>💾 <strong>Guardar</strong> para conservar cambios</p>
           </div>
         </CardContent>
       </Card>

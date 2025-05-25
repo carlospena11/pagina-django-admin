@@ -12,6 +12,7 @@ import FlightStatus from "./pages/FlightStatus";
 import WelcomePage from "./pages/WelcomePage";
 import HotelExperiencePage from "./pages/HotelExperiencePage";
 import NotFound from "./pages/NotFound";
+import { CMSPageRenderer } from "./components/cms/CMSPageRenderer";
 
 const queryClient = new QueryClient();
 
@@ -31,6 +32,13 @@ const App = () => {
             <Route path="/hilton" element={<HiltonDemo />} />
             <Route path="/flights" element={<FlightStatus />} />
             <Route path="/welcome" element={<WelcomePage />} />
+            <Route path="/hotel-experience" element={<HotelExperiencePage />} />
+            
+            {/* CMS Dynamic Pages */}
+            <Route path="/home" element={<CMSPageRenderer pageSlug="home" />} />
+            <Route path="/about" element={<CMSPageRenderer pageSlug="about" />} />
+            <Route path="/contact" element={<CMSPageRenderer pageSlug="contact" />} />
+            
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
