@@ -71,6 +71,96 @@ const WelcomePage: React.FC = () => {
                   />
                 </div>
               </CarouselItem>
+              <CarouselItem className="h-full">
+                <div className="h-full">
+                  <img 
+                    src="/lovable-uploads/38d2a68a-e2b3-420b-b9da-b27dc8e41062.png" 
+                    alt="Bruncheando - Domingo Febrero $28"
+                    className="w-full h-full object-contain"
+                  />
+                </div>
+              </CarouselItem>
+              <CarouselItem className="h-full">
+                <div className="h-full">
+                  <img 
+                    src="/lovable-uploads/6c9ec901-5e77-481e-aef8-4c29fad2b4a3.png" 
+                    alt="Noche de Salsa & DJ - Viernes Terra Bar"
+                    className="w-full h-full object-contain"
+                  />
+                </div>
+              </CarouselItem>
+              <CarouselItem className="h-full">
+                <div className="h-full">
+                  <img 
+                    src="/lovable-uploads/74b7c9e7-0e6f-4f61-8daa-0cb4bf633e20.png" 
+                    alt="Almuerzo Buffet $32 - Lunes a Viernes"
+                    className="w-full h-full object-contain"
+                  />
+                </div>
+              </CarouselItem>
+              <CarouselItem className="h-full">
+                <div className="h-full">
+                  <img 
+                    src="/lovable-uploads/ae3ab1b5-dc8b-466e-bdbc-e1f459fefe59.png" 
+                    alt="Jazz & Blues - Miércoles Terra Bar"
+                    className="w-full h-full object-contain"
+                  />
+                </div>
+              </CarouselItem>
+              <CarouselItem className="h-full">
+                <div className="h-full">
+                  <img 
+                    src="/lovable-uploads/c3e66024-e9af-497f-a61e-37ba9b05e325.png" 
+                    alt="Desayuno Buffet $24 - Todos los días"
+                    className="w-full h-full object-contain"
+                  />
+                </div>
+              </CarouselItem>
+              <CarouselItem className="h-full">
+                <div className="h-full">
+                  <img 
+                    src="/lovable-uploads/c66cd0e4-a6c0-4833-bcfe-0c2e3a0c3d9b.png" 
+                    alt="Bossa Nova - Jueves Terra Bar"
+                    className="w-full h-full object-contain"
+                  />
+                </div>
+              </CarouselItem>
+              <CarouselItem className="h-full">
+                <div className="h-full">
+                  <img 
+                    src="/lovable-uploads/d66c1e8f-9241-47e5-8df8-caffa85796cf.png" 
+                    alt="Para Compartir - Terra Bar"
+                    className="w-full h-full object-contain"
+                  />
+                </div>
+              </CarouselItem>
+              <CarouselItem className="h-full">
+                <div className="h-full">
+                  <img 
+                    src="/lovable-uploads/dd3c14c0-3e51-4063-9da1-4d3f9001c2c4.png" 
+                    alt="Michelob Ultra - Pide 2 Disfruta 3"
+                    className="w-full h-full object-contain"
+                  />
+                </div>
+              </CarouselItem>
+              <CarouselItem className="h-full">
+                <div className="h-full">
+                  <img 
+                    src="/lovable-uploads/e6f14ad1-f5de-4b5b-b81a-13a8d64e0ac4.png" 
+                    alt="Noche de Salsa & DJ - Viernes"
+                    className="w-full h-full object-contain"
+                  />
+                </div>
+              </CarouselItem>
+              <CarouselItem className="h-full">
+                <div className="h-full">
+                  <img 
+                    src="/lovable-uploads/f1e14ce2-59b3-447c-b8d5-7ae1f4e3c8af.png" 
+                    alt="Noche de Saxofón & DJ - Viernes"
+                    className="w-full h-full object-contain"
+                  />
+                </div>
+              </CarouselItem>
             </CarouselContent>
             
             <CarouselPrevious className="absolute left-4 top-1/2 -translate-y-1/2 bg-blue-600 bg-opacity-90 border-blue-600 hover:bg-blue-700 w-12 h-12" />
