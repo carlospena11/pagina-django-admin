@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -111,7 +112,6 @@ export const ContentEditor: React.FC<ContentEditorProps> = ({ onNavigate }) => {
           <p className="text-gray-500 mt-1">Crea y edita el contenido de tus páginas</p>
         </div>
         <div className="flex gap-2">
-          {/* Mode Switcher */}
           <div className="flex border rounded-lg">
             <Button
               variant={editorMode === 'visual' ? 'default' : 'ghost'}
