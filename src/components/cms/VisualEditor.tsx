@@ -9,9 +9,7 @@ import {
   Undo, 
   Redo,
   ArrowLeft,
-  Monitor,
-  Tablet,
-  Smartphone
+  Tv
 } from 'lucide-react';
 import { PageSelector } from './PageSelector';
 import { DragDropToolbar } from './DragDropToolbar';
@@ -26,7 +24,6 @@ interface VisualEditorProps {
 export const VisualEditor: React.FC<VisualEditorProps> = ({ onNavigate }) => {
   const { pages, updatePage } = useCMS();
   const [selectedPageId, setSelectedPageId] = useState<string | null>(null);
-  const [viewMode, setViewMode] = useState<'desktop' | 'tablet' | 'mobile'>('desktop');
   const [isDragging, setIsDragging] = useState(false);
   const [selectedElement, setSelectedElement] = useState<string | null>(null);
   const [showImageLibrary, setShowImageLibrary] = useState(false);
@@ -85,24 +82,13 @@ export const VisualEditor: React.FC<VisualEditorProps> = ({ onNavigate }) => {
     if (selectedPage) {
       const pageContent = {
         elements,
-        layout: viewMode
+        layout: 'tv'
       };
       updatePage(selectedPage.id, { 
         content: JSON.stringify(pageContent),
         lastModified: new Date().toISOString().split('T')[0]
       });
       console.log('Página guardada exitosamente');
-    }
-  };
-
-  const getViewportClass = () => {
-    switch (viewMode) {
-      case 'tablet':
-        return 'max-w-2xl aspect-[4/3]';
-      case 'mobile':
-        return 'max-w-sm aspect-[9/16]';
-      default:
-        return 'max-w-6xl aspect-[16/10]';
     }
   };
 
@@ -143,25 +129,12 @@ export const VisualEditor: React.FC<VisualEditorProps> = ({ onNavigate }) => {
         <div className="flex gap-2">
           <div className="flex border rounded-lg">
             <Button
-              variant={viewMode === 'desktop' ? 'default' : 'ghost'}
+              variant="default"
               size="sm"
-              onClick={() => setViewMode('desktop')}
+              className="flex items-center gap-2"
             >
-              <Monitor className="w-4 h-4" />
-            </Button>
-            <Button
-              variant={viewMode === 'tablet' ? 'default' : 'ghost'}
-              size="sm"
-              onClick={() => setViewMode('tablet')}
-            >
-              <Tablet className="w-4 h-4" />
-            </Button>
-            <Button
-              variant={viewMode === 'mobile' ? 'default' : 'ghost'}
-              size="sm"
-              onClick={() => setViewMode('mobile')}
-            >
-              <Smartphone className="w-4 h-4" />
+              <Tv className="w-4 h-4" />
+              TV
             </Button>
           </div>
           
@@ -201,20 +174,20 @@ export const VisualEditor: React.FC<VisualEditorProps> = ({ onNavigate }) => {
           <Card className="min-h-[600px]">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Monitor className="w-5 h-5" />
-                Canvas de Edición - {viewMode.toUpperCase()}
+                <Tv className="w-5 h-5" />
+                Canvas de Edición - TV
               </CardTitle>
             </CardHeader>
             <CardContent className="p-0">
               <div className="flex justify-center p-4">
-                <div className={`transition-all duration-300 ${getViewportClass()}`}>
+                <div className="transition-all duration-300 max-w-6xl aspect-video">
                   <div
                     ref={canvasRef}
-                    className="relative w-full h-full border-2 border-dashed border-gray-200 overflow-hidden bg-white"
+                    className="relative w-full h-full border-2 border-dashed border-gray-200 overflow-hidden bg-black"
                     onDragOver={(e) => e.preventDefault()}
                     onDrop={handleDrop}
                     style={{ 
-                      backgroundImage: isDragging ? 'radial-gradient(circle, rgba(0,0,0,0.05) 1px, transparent 1px)' : 'none',
+                      backgroundImage: isDragging ? 'radial-gradient(circle, rgba(255,255,255,0.05) 1px, transparent 1px)' : 'none',
                       backgroundSize: isDragging ? '20px 20px' : 'auto',
                       minHeight: '400px'
                     }}
@@ -233,10 +206,10 @@ export const VisualEditor: React.FC<VisualEditorProps> = ({ onNavigate }) => {
                     {/* Drop Zone Hint */}
                     {isDragging && elements.length === 0 && (
                       <div className="absolute inset-0 flex items-center justify-center">
-                        <div className="text-center text-gray-500">
-                          <div className="text-4xl mb-4">📝</div>
-                          <p className="text-xl">Arrastra elementos aquí</p>
-                          <p className="text-sm opacity-75 mt-2">Crea tu diseño personalizado</p>
+                        <div className="text-center text-white">
+                          <div className="text-4xl mb-4">📺</div>
+                          <p className="text-xl">Arrastra elementos para TV</p>
+                          <p className="text-sm opacity-75 mt-2">Diseña tu interfaz de televisión</p>
                         </div>
                       </div>
                     )}
@@ -260,11 +233,8 @@ export const VisualEditor: React.FC<VisualEditorProps> = ({ onNavigate }) => {
               <CardContent>
                 <div className="space-y-4">
                   <div className="bg-gray-100 rounded-lg p-3">
-                    <div className="text-center mb-2 text-xs text-gray-600">{viewMode.toUpperCase()}</div>
-                    <div className={`w-full bg-white rounded border relative overflow-hidden ${
-                      viewMode === 'mobile' ? 'aspect-[9/16]' : 
-                      viewMode === 'tablet' ? 'aspect-[4/3]' : 'aspect-video'
-                    }`}>
+                    <div className="text-center mb-2 text-xs text-gray-600">TV</div>
+                    <div className="w-full bg-black rounded border relative overflow-hidden aspect-video">
                       {elements.map((element) => (
                         <div
                           key={`preview-${element.id}`}
@@ -275,21 +245,21 @@ export const VisualEditor: React.FC<VisualEditorProps> = ({ onNavigate }) => {
                             width: `${(element.width / 1000) * 100}%`,
                             height: `${(element.height / 600) * 100}%`,
                             fontSize: '4px',
-                            color: element.styles?.color || '#333'
+                            color: element.styles?.color || '#fff'
                           }}
                         >
                           {element.type === 'text' && (
-                            <div className="text-xs truncate">
+                            <div className="text-xs truncate text-white">
                               {element.content}
                             </div>
                           )}
                           {element.type === 'heading' && (
-                            <div className="text-xs font-bold truncate">
+                            <div className="text-xs font-bold truncate text-white">
                               {element.content}
                             </div>
                           )}
                           {element.type === 'image' && (
-                            <div className="bg-gray-300 w-full h-full rounded"></div>
+                            <div className="bg-gray-700 w-full h-full rounded"></div>
                           )}
                           {element.type === 'button' && (
                             <div className="bg-blue-500 w-full h-full rounded text-center text-white text-xs">
@@ -303,7 +273,7 @@ export const VisualEditor: React.FC<VisualEditorProps> = ({ onNavigate }) => {
                   
                   <div className="text-xs text-gray-500 space-y-1">
                     <p>• Elementos: {elements.length}</p>
-                    <p>• Modo: {viewMode}</p>
+                    <p>• Modo: TV</p>
                   </div>
                 </div>
               </CardContent>

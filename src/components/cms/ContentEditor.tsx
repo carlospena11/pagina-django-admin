@@ -1,24 +1,22 @@
-
 import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Separator } from '@/components/ui/separator';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
-  Save, 
+  Code, 
   Eye, 
-  FileText, 
-  Calendar, 
-  User,
-  Globe,
-  Edit3,
-  Settings,
-  ExternalLink,
+  Save, 
   ArrowLeft,
+  FileText,
+  Monitor,
   Palette
 } from 'lucide-react';
+import { Textarea } from '@/components/ui/textarea';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useCMS } from '@/contexts/CMSContext';
 import { VisualEditor } from './VisualEditor';
 
 interface ContentEditorProps {
@@ -26,304 +24,265 @@ interface ContentEditorProps {
 }
 
 export const ContentEditor: React.FC<ContentEditorProps> = ({ onNavigate }) => {
+  const { pages, addPage, updatePage } = useCMS();
+  const [selectedPageId, setSelectedPageId] = useState<string | null>(null);
   const [editorMode, setEditorMode] = useState<'code' | 'visual'>('visual');
-  
-  const [title, setTitle] = useState('Página de Inicio');
-  const [content, setContent] = useState(`<h1>Bienvenido a Nuestro Sitio Web</h1>
+  const [pageData, setPageData] = useState({
+    title: '',
+    slug: '',
+    status: 'draft' as const,
+    content: ''
+  });
 
-<p>Esta es una página de ejemplo creada con nuestro editor de contenido. Aquí puedes escribir y formatear el contenido de tu sitio web.</p>
+  const selectedPage = pages.find(p => p.id === selectedPageId);
 
-<h2>Características Principales</h2>
-<ul>
-  <li>Editor de contenido intuitivo</li>
-  <li>Vista previa en tiempo real</li>
-  <li>Gestión de medios integrada</li>
-  <li>SEO optimizado</li>
-</ul>
-
-<p>Puedes incluir imágenes, enlaces y cualquier otro contenido HTML que necesites para tu sitio web.</p>`);
-  const [slug, setSlug] = useState('inicio');
-  const [status, setStatus] = useState('Borrador');
-  const [isFullPreview, setIsFullPreview] = useState(false);
+  React.useEffect(() => {
+    if (selectedPage) {
+      setPageData({
+        title: selectedPage.title,
+        slug: selectedPage.slug,
+        status: selectedPage.status,
+        content: selectedPage.content || ''
+      });
+    }
+  }, [selectedPage]);
 
   const handleSave = () => {
-    console.log('Guardando contenido...', { title, content, slug, status });
-  };
-
-  const handlePreview = () => {
-    if (onNavigate) {
-      onNavigate('preview');
+    if (selectedPageId && selectedPage) {
+      updatePage(selectedPageId, {
+        ...pageData,
+        lastModified: new Date().toISOString().split('T')[0]
+      });
+      console.log('Página actualizada exitosamente');
+    } else {
+      const newPage = {
+        ...pageData,
+        author: 'Current User',
+        lastModified: new Date().toISOString().split('T')[0],
+        views: 0
+      };
+      addPage(newPage);
+      console.log('Nueva página creada exitosamente');
     }
   };
 
-  const handlePublish = () => {
-    setStatus('Publicada');
-    handleSave();
+  const handlePreview = () => {
+    console.log('Vista previa de la página');
   };
 
-  const handleFullPreview = () => {
-    setIsFullPreview(true);
-  };
-
-  const handleBackToEditor = () => {
-    setIsFullPreview(false);
-  };
-
-  // Si está en modo visual, mostrar el VisualEditor
   if (editorMode === 'visual') {
     return <VisualEditor onNavigate={onNavigate} />;
   }
 
-  // Vista previa completa
-  if (isFullPreview) {
+  // Page selector
+  if (!selectedPageId) {
     return (
       <div className="space-y-6">
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Vista Previa Completa</h1>
-            <p className="text-gray-500 mt-1">Visualización de la página tal como se verá publicada</p>
+            <h1 className="text-3xl font-bold text-gray-900">Editor de Contenido</h1>
+            <p className="text-gray-500">Crea y edita páginas de tu sitio web</p>
           </div>
-          <Button onClick={handleBackToEditor} className="flex items-center gap-2">
-            <ArrowLeft className="w-4 h-4" />
-            Volver al Editor
-          </Button>
-        </div>
-
-        <Card className="min-h-[600px]">
-          <CardContent className="p-8">
-            <div className="max-w-4xl mx-auto">
-              <h1 className="text-4xl font-bold mb-6">{title}</h1>
-              <div 
-                className="prose prose-lg max-w-none"
-                dangerouslySetInnerHTML={{ __html: content }}
-              />
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
-  return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Editor de Contenido</h1>
-          <p className="text-gray-500 mt-1">Crea y edita el contenido de tus páginas</p>
-        </div>
-        <div className="flex gap-2">
-          <div className="flex border rounded-lg">
-            <Button
-              variant={editorMode === 'visual' ? 'default' : 'ghost'}
-              size="sm"
+          <div className="flex gap-2">
+            <Button 
+              variant={editorMode === 'visual' ? 'default' : 'outline'} 
               onClick={() => setEditorMode('visual')}
               className="flex items-center gap-2"
             >
               <Palette className="w-4 h-4" />
-              Visual
+              Editor Visual
             </Button>
-            <Button
-              variant={editorMode === 'code' ? 'default' : 'ghost'}
-              size="sm"
+            <Button 
+              variant={editorMode === 'code' ? 'default' : 'outline'} 
               onClick={() => setEditorMode('code')}
               className="flex items-center gap-2"
             >
-              <Edit3 className="w-4 h-4" />
-              Código
+              <Code className="w-4 h-4" />
+              Editor de Código
             </Button>
           </div>
-          
+        </div>
+
+        {/* Create New Page Card */}
+        <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => setSelectedPageId('new')}>
+          <CardContent className="p-6">
+            <div className="text-center">
+              <FileText className="w-12 h-12 mx-auto mb-4 text-gray-400" />
+              <h3 className="text-xl font-semibold mb-2">Crear Nueva Página</h3>
+              <p className="text-gray-500">Comienza desde cero con una página en blanco</p>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Existing Pages Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {pages.map((page) => (
+            <Card key={page.id} className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => setSelectedPageId(page.id)}>
+              <CardHeader>
+                <div className="flex justify-between items-start">
+                  <CardTitle className="text-lg">{page.title}</CardTitle>
+                  <Badge variant={page.status === 'published' ? 'default' : 'secondary'}>
+                    {page.status === 'published' ? 'Publicado' : page.status === 'draft' ? 'Borrador' : 'En Revisión'}
+                  </Badge>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2 text-sm text-gray-500">
+                  <p>Slug: /{page.slug}</p>
+                  <p>Autor: {page.author}</p>
+                  <p>Última modificación: {page.lastModified}</p>
+                  <p>Vistas: {page.views.toLocaleString()}</p>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  // Content Editor
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex justify-between items-center">
+        <div className="flex items-center gap-4">
+          <Button 
+            variant="outline" 
+            onClick={() => setSelectedPageId(null)}
+            className="flex items-center gap-2"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Volver
+          </Button>
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">
+              {selectedPageId === 'new' ? 'Nueva Página' : 'Editar Página'}
+            </h1>
+            <p className="text-gray-500">
+              {selectedPageId === 'new' ? 'Crea una nueva página' : `Editando: ${selectedPage?.title}`}
+            </p>
+          </div>
+        </div>
+        
+        <div className="flex gap-2">
+          <Button 
+            variant={editorMode === 'visual' ? 'default' : 'outline'} 
+            onClick={() => setEditorMode('visual')}
+            className="flex items-center gap-2"
+          >
+            <Palette className="w-4 h-4" />
+            Visual
+          </Button>
+          <Button 
+            variant={editorMode === 'code' ? 'default' : 'outline'} 
+            onClick={() => setEditorMode('code')}
+            className="flex items-center gap-2"
+          >
+            <Code className="w-4 h-4" />
+            Código
+          </Button>
           <Button variant="outline" onClick={handlePreview} className="flex items-center gap-2">
             <Eye className="w-4 h-4" />
             Vista Previa
           </Button>
-          <Button variant="outline" onClick={handleSave} className="flex items-center gap-2">
+          <Button onClick={handleSave} className="flex items-center gap-2">
             <Save className="w-4 h-4" />
             Guardar
-          </Button>
-          <Button onClick={handlePublish} className="flex items-center gap-2">
-            <Globe className="w-4 h-4" />
-            Publicar
           </Button>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Edit3 className="w-5 h-5" />
-                Contenido
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <label className="text-sm font-medium text-gray-700 mb-2 block">
-                  Título de la Página
-                </label>
-                <Input
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  placeholder="Ingresa el título de la página"
-                  className="text-lg font-semibold"
-                />
-              </div>
-              
-              <div>
-                <label className="text-sm font-medium text-gray-700 mb-2 block">
-                  Contenido HTML
-                </label>
-                <Textarea
-                  value={content}
-                  onChange={(e) => setContent(e.target.value)}
-                  placeholder="Escribe tu contenido aquí..."
-                  className="min-h-[400px] font-mono text-sm"
-                />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <div>
+      {/* Editor Content */}
+      <div className="grid grid-cols-12 gap-6">
+        {/* Main Editor */}
+        <div className="col-span-8">
+          <Tabs defaultValue="content" className="space-y-4">
+            <TabsList>
+              <TabsTrigger value="content">Contenido</TabsTrigger>
+              <TabsTrigger value="settings">Configuración</TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="content">
+              <Card>
+                <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <Eye className="w-5 h-5" />
-                    Vista Previa en Miniatura
+                    <Code className="w-5 h-5" />
+                    Editor HTML
                   </CardTitle>
-                  <CardDescription>
-                    Así se verá tu contenido en el sitio web
-                  </CardDescription>
-                </div>
-                <Button onClick={handleFullPreview} size="sm" className="flex items-center gap-2">
-                  <ExternalLink className="w-4 h-4" />
-                  Ver Completa
-                </Button>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="border rounded-lg overflow-hidden bg-white">
-                <div className="bg-gray-50 border-b px-4 py-2 flex items-center gap-2">
-                  <div className="flex gap-1">
-                    <div className="w-3 h-3 bg-red-400 rounded-full"></div>
-                    <div className="w-3 h-3 bg-yellow-400 rounded-full"></div>
-                    <div className="w-3 h-3 bg-green-400 rounded-full"></div>
-                  </div>
-                  <div className="flex-1 bg-white rounded px-3 py-1 text-xs text-gray-500">
-                    misite.com/pages/{slug}
-                  </div>
-                </div>
-                
-                <div className="p-4 max-h-[300px] overflow-y-auto">
-                  <h1 className="text-lg font-bold mb-3">{title}</h1>
-                  <div 
-                    className="prose prose-sm max-w-none text-sm"
-                    dangerouslySetInnerHTML={{ __html: content }}
+                </CardHeader>
+                <CardContent>
+                  <Textarea
+                    placeholder="Escribe tu contenido HTML aquí..."
+                    className="min-h-[400px] font-mono"
+                    value={pageData.content}
+                    onChange={(e) => setPageData({...pageData, content: e.target.value})}
                   />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+                </CardContent>
+              </Card>
+            </TabsContent>
+            
+            <TabsContent value="settings">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Configuración de Página</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <Label htmlFor="title">Título</Label>
+                    <Input
+                      id="title"
+                      value={pageData.title}
+                      onChange={(e) => setPageData({...pageData, title: e.target.value})}
+                      placeholder="Título de la página"
+                    />
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="slug">Slug (URL)</Label>
+                    <Input
+                      id="slug"
+                      value={pageData.slug}
+                      onChange={(e) => setPageData({...pageData, slug: e.target.value})}
+                      placeholder="url-de-la-pagina"
+                    />
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="status">Estado</Label>
+                    <Select value={pageData.status} onValueChange={(value: 'published' | 'draft' | 'review') => setPageData({...pageData, status: value})}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="draft">Borrador</SelectItem>
+                        <SelectItem value="review">En Revisión</SelectItem>
+                        <SelectItem value="published">Publicado</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+          </Tabs>
         </div>
 
-        <div className="space-y-6">
-          <Card>
+        {/* Preview Panel */}
+        <div className="col-span-4">
+          <Card className="sticky top-6">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Settings className="w-5 h-5" />
-                Configuración
+                <Monitor className="w-5 h-5" />
+                Vista Previa
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <label className="text-sm font-medium text-gray-700 mb-2 block">
-                  Estado
-                </label>
-                <Badge 
-                  className={
-                    status === 'Publicada' 
-                      ? 'bg-green-100 text-green-800' 
-                      : 'bg-yellow-100 text-yellow-800'
-                  }
-                  variant="secondary"
-                >
-                  {status}
-                </Badge>
-              </div>
-              
-              <div>
-                <label className="text-sm font-medium text-gray-700 mb-2 block">
-                  URL Slug
-                </label>
-                <Input
-                  value={slug}
-                  onChange={(e) => setSlug(e.target.value)}
-                  placeholder="url-de-la-pagina"
+            <CardContent>
+              <div className="border rounded-lg p-4 bg-white min-h-[300px]">
+                <div 
+                  className="prose prose-sm max-w-none"
+                  dangerouslySetInnerHTML={{ __html: pageData.content || '<p class="text-gray-400">El contenido aparecerá aquí...</p>' }}
                 />
-                <p className="text-xs text-gray-500 mt-1">
-                  La URL será: /pages/{slug}
-                </p>
               </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <FileText className="w-5 h-5" />
-                Información
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <div className="flex items-center gap-2 text-sm text-gray-600">
-                <Calendar className="w-4 h-4" />
-                <span>Creada: 15 Nov 2024</span>
-              </div>
-              <div className="flex items-center gap-2 text-sm text-gray-600">
-                <Calendar className="w-4 h-4" />
-                <span>Modificada: Hace 10 min</span>
-              </div>
-              <div className="flex items-center gap-2 text-sm text-gray-600">
-                <User className="w-4 h-4" />
-                <span>Autor: Admin</span>
-              </div>
-              
-              <Separator />
-              
-              <div className="text-sm text-gray-600">
-                <p className="font-medium mb-1">Estadísticas:</p>
-                <p>Palabras: {content.replace(/<[^>]*>/g, '').split(' ').length}</p>
-                <p>Caracteres: {content.replace(/<[^>]*>/g, '').length}</p>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Acciones Rápidas</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              <Button 
-                variant="outline" 
-                className="w-full justify-start" 
-                onClick={() => setEditorMode('visual')}
-              >
-                <Palette className="w-4 h-4 mr-2" />
-                Editor Visual
-              </Button>
-              <Button variant="outline" className="w-full justify-start" onClick={() => onNavigate?.('media')}>
-                <FileText className="w-4 h-4 mr-2" />
-                Insertar Imagen
-              </Button>
-              <Button variant="outline" className="w-full justify-start" onClick={() => onNavigate?.('pages')}>
-                <FileText className="w-4 h-4 mr-2" />
-                Ver Todas las Páginas
-              </Button>
-              <Button variant="outline" className="w-full justify-start">
-                <Globe className="w-4 h-4 mr-2" />
-                Ver en Sitio Web
-              </Button>
             </CardContent>
           </Card>
         </div>
