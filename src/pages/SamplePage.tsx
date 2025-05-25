@@ -1,11 +1,13 @@
 
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 interface SamplePageProps {
   onNavigate?: (view: string) => void;
 }
 
 const SamplePage: React.FC<SamplePageProps> = ({ onNavigate }) => {
+  const navigate = useNavigate();
   const [currentTime, setCurrentTime] = useState('');
   const [weather, setWeather] = useState({
     temperature: '',
@@ -62,7 +64,7 @@ const SamplePage: React.FC<SamplePageProps> = ({ onNavigate }) => {
 
   const redirectFunctions = {
     redirectWelcome: () => alert('Redirigiendo a Bienvenida'),
-    redirectPagVuelos: () => alert('Redirigiendo a Vuelos'),
+    redirectPagVuelos: () => navigate('/flights'),
     redirectPromociones: () => alert('Redirigiendo a Promociones'),
     redirectMenu: () => alert('Redirigiendo a Menú'),
     redirectDescubreSV: () => alert('Redirigiendo a Descubre El Salvador'),
