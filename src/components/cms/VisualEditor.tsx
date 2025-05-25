@@ -12,8 +12,7 @@ import {
   ArrowLeft,
   Monitor,
   Tablet,
-  Smartphone,
-  Tv
+  Smartphone
 } from 'lucide-react';
 import { PageSelector } from './PageSelector';
 import { DragDropToolbar } from './DragDropToolbar';
@@ -28,7 +27,7 @@ interface VisualEditorProps {
 export const VisualEditor: React.FC<VisualEditorProps> = ({ onNavigate }) => {
   const { pages, updatePage } = useCMS();
   const [selectedPageId, setSelectedPageId] = useState<string | null>(null);
-  const [viewMode, setViewMode] = useState<'tv' | 'desktop' | 'tablet' | 'mobile'>('tv');
+  const [viewMode, setViewMode] = useState<'desktop' | 'tablet' | 'mobile'>('desktop');
   const [isDragging, setIsDragging] = useState(false);
   const [selectedElement, setSelectedElement] = useState<string | null>(null);
   const [showImageLibrary, setShowImageLibrary] = useState(false);
@@ -60,17 +59,16 @@ export const VisualEditor: React.FC<VisualEditorProps> = ({ onNavigate }) => {
         type: elementType,
         x,
         y,
-        width: elementType === 'text' ? 400 : 300,
-        height: elementType === 'text' ? 60 : 200,
-        content: elementType === 'text' ? 'Nuevo texto para TV' : 
-                elementType === 'heading' ? 'Título para TV' :
-                elementType === 'button' ? 'Botón de TV' : '/placeholder.svg',
+        width: elementType === 'text' ? 300 : 250,
+        height: elementType === 'text' ? 40 : 150,
+        content: elementType === 'text' ? 'Nuevo texto' : 
+                elementType === 'heading' ? 'Título' :
+                elementType === 'button' ? 'Botón' : '/placeholder.svg',
         styles: {
-          fontSize: elementType === 'text' ? '24px' : 
-                  elementType === 'heading' ? '48px' : '20px',
+          fontSize: elementType === 'text' ? '16px' : 
+                  elementType === 'heading' ? '32px' : '14px',
           fontWeight: elementType === 'heading' ? 'bold' : 'normal',
-          color: '#ffffff',
-          textShadow: '2px 2px 4px rgba(0,0,0,0.8)'
+          color: '#333333'
         }
       };
       
@@ -100,8 +98,6 @@ export const VisualEditor: React.FC<VisualEditorProps> = ({ onNavigate }) => {
 
   const getViewportClass = () => {
     switch (viewMode) {
-      case 'tv':
-        return 'w-full aspect-[16/9] max-w-7xl';
       case 'tablet':
         return 'max-w-2xl aspect-[4/3]';
       case 'mobile':
@@ -109,13 +105,6 @@ export const VisualEditor: React.FC<VisualEditorProps> = ({ onNavigate }) => {
       default:
         return 'max-w-6xl aspect-[16/10]';
     }
-  };
-
-  const getCanvasBackground = () => {
-    if (viewMode === 'tv') {
-      return 'bg-gradient-to-br from-gray-900 via-gray-800 to-black';
-    }
-    return 'bg-white';
   };
 
   if (!selectedPageId) {
@@ -142,7 +131,7 @@ export const VisualEditor: React.FC<VisualEditorProps> = ({ onNavigate }) => {
             Volver
           </Button>
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Editor Visual para TV Android</h1>
+            <h1 className="text-3xl font-bold text-gray-900">Editor Visual</h1>
             <p className="text-gray-500">
               Editando: {selectedPage?.title}
               <Badge className="ml-2" variant="secondary">
@@ -154,14 +143,6 @@ export const VisualEditor: React.FC<VisualEditorProps> = ({ onNavigate }) => {
         
         <div className="flex gap-2">
           <div className="flex border rounded-lg">
-            <Button
-              variant={viewMode === 'tv' ? 'default' : 'ghost'}
-              size="sm"
-              onClick={() => setViewMode('tv')}
-              title="Vista TV Android"
-            >
-              <Tv className="w-4 h-4" />
-            </Button>
             <Button
               variant={viewMode === 'desktop' ? 'default' : 'ghost'}
               size="sm"
@@ -221,7 +202,7 @@ export const VisualEditor: React.FC<VisualEditorProps> = ({ onNavigate }) => {
           <Card className="min-h-[600px]">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Tv className="w-5 h-5" />
+                <Monitor className="w-5 h-5" />
                 Canvas de Edición - {viewMode.toUpperCase()}
               </CardTitle>
             </CardHeader>
@@ -230,22 +211,15 @@ export const VisualEditor: React.FC<VisualEditorProps> = ({ onNavigate }) => {
                 <div className={`transition-all duration-300 ${getViewportClass()}`}>
                   <div
                     ref={canvasRef}
-                    className={`relative w-full h-full border-2 border-dashed border-gray-200 overflow-hidden ${getCanvasBackground()}`}
+                    className="relative w-full h-full border-2 border-dashed border-gray-200 overflow-hidden bg-white"
                     onDragOver={(e) => e.preventDefault()}
                     onDrop={handleDrop}
                     style={{ 
-                      backgroundImage: isDragging ? 'radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px)' : 'none',
-                      backgroundSize: isDragging ? '30px 30px' : 'auto',
-                      minHeight: viewMode === 'tv' ? '540px' : '400px'
+                      backgroundImage: isDragging ? 'radial-gradient(circle, rgba(0,0,0,0.05) 1px, transparent 1px)' : 'none',
+                      backgroundSize: isDragging ? '20px 20px' : 'auto',
+                      minHeight: '400px'
                     }}
                   >
-                    {/* TV Frame Indicator */}
-                    {viewMode === 'tv' && (
-                      <div className="absolute top-2 left-2 bg-black bg-opacity-50 text-white px-2 py-1 rounded text-xs">
-                        TV Android 16:9
-                      </div>
-                    )}
-                    
                     {/* Rendered Elements */}
                     {elements.map((element) => (
                       <EditableElement
@@ -260,10 +234,10 @@ export const VisualEditor: React.FC<VisualEditorProps> = ({ onNavigate }) => {
                     {/* Drop Zone Hint */}
                     {isDragging && elements.length === 0 && (
                       <div className="absolute inset-0 flex items-center justify-center">
-                        <div className="text-center text-white">
-                          <div className="text-4xl mb-4">📺</div>
-                          <p className="text-xl">Arrastra elementos aquí para la TV</p>
-                          <p className="text-sm opacity-75 mt-2">Diseño optimizado para Android TV</p>
+                        <div className="text-center text-gray-500">
+                          <div className="text-4xl mb-4">📝</div>
+                          <p className="text-xl">Arrastra elementos aquí</p>
+                          <p className="text-sm opacity-75 mt-2">Crea tu diseño personalizado</p>
                         </div>
                       </div>
                     )}
@@ -286,9 +260,12 @@ export const VisualEditor: React.FC<VisualEditorProps> = ({ onNavigate }) => {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  <div className="bg-black rounded-lg p-3 text-white text-xs">
-                    <div className="text-center mb-2">📺 TV Android</div>
-                    <div className={`w-full aspect-video bg-gradient-to-br from-gray-800 to-black rounded border relative overflow-hidden`}>
+                  <div className="bg-gray-100 rounded-lg p-3">
+                    <div className="text-center mb-2 text-xs text-gray-600">{viewMode.toUpperCase()}</div>
+                    <div className={`w-full bg-white rounded border relative overflow-hidden ${
+                      viewMode === 'mobile' ? 'aspect-[9/16]' : 
+                      viewMode === 'tablet' ? 'aspect-[4/3]' : 'aspect-video'
+                    }`}>
                       {elements.map((element) => (
                         <div
                           key={`preview-${element.id}`}
@@ -299,24 +276,24 @@ export const VisualEditor: React.FC<VisualEditorProps> = ({ onNavigate }) => {
                             width: `${(element.width / 1000) * 100}%`,
                             height: `${(element.height / 600) * 100}%`,
                             fontSize: '4px',
-                            color: element.styles?.color || 'white'
+                            color: element.styles?.color || '#333'
                           }}
                         >
                           {element.type === 'text' && (
-                            <div className="text-white text-xs truncate">
+                            <div className="text-xs truncate">
                               {element.content}
                             </div>
                           )}
                           {element.type === 'heading' && (
-                            <div className="text-white text-xs font-bold truncate">
+                            <div className="text-xs font-bold truncate">
                               {element.content}
                             </div>
                           )}
                           {element.type === 'image' && (
-                            <div className="bg-gray-600 w-full h-full rounded"></div>
+                            <div className="bg-gray-300 w-full h-full rounded"></div>
                           )}
                           {element.type === 'button' && (
-                            <div className="bg-blue-600 w-full h-full rounded text-center text-white text-xs">
+                            <div className="bg-blue-500 w-full h-full rounded text-center text-white text-xs">
                               BTN
                             </div>
                           )}
@@ -328,7 +305,6 @@ export const VisualEditor: React.FC<VisualEditorProps> = ({ onNavigate }) => {
                   <div className="text-xs text-gray-500 space-y-1">
                     <p>• Elementos: {elements.length}</p>
                     <p>• Modo: {viewMode}</p>
-                    <p>• Resolución: 1920x1080</p>
                   </div>
                 </div>
               </CardContent>
@@ -342,7 +318,7 @@ export const VisualEditor: React.FC<VisualEditorProps> = ({ onNavigate }) => {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Settings className="w-5 h-5" />
-                Propiedades TV
+                Propiedades
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -352,10 +328,9 @@ export const VisualEditor: React.FC<VisualEditorProps> = ({ onNavigate }) => {
                     Elemento: {elements.find(el => el.id === selectedElement)?.type}
                   </p>
                   <div className="text-xs text-gray-500 space-y-1">
-                    <p>• Optimizado para TV</p>
-                    <p>• Texto grande y legible</p>
-                    <p>• Contraste alto</p>
-                    <p>• Navegación por control</p>
+                    <p>• Diseño responsivo</p>
+                    <p>• Texto legible</p>
+                    <p>• Contraste adecuado</p>
                   </div>
                 </div>
               ) : (
@@ -364,11 +339,10 @@ export const VisualEditor: React.FC<VisualEditorProps> = ({ onNavigate }) => {
                     Selecciona un elemento para editar
                   </p>
                   <div className="text-xs text-gray-400 space-y-1">
-                    <p>💡 Consejos para TV:</p>
-                    <p>• Usa texto grande (24px+)</p>
-                    <p>• Colores contrastantes</p>
-                    <p>• Espaciado generoso</p>
-                    <p>• Botones grandes</p>
+                    <p>💡 Consejos de diseño:</p>
+                    <p>• Usa colores contrastantes</p>
+                    <p>• Espaciado consistente</p>
+                    <p>• Tipografía clara</p>
                   </div>
                 </div>
               )}
