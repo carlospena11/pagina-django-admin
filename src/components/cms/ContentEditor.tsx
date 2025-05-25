@@ -27,11 +27,13 @@ interface ContentEditorProps {
   onNavigate?: (view: string) => void;
 }
 
+type EditorMode = 'visual' | 'code';
+
 export const ContentEditor: React.FC<ContentEditorProps> = ({ onNavigate }) => {
   const { pages, addPage, updatePage, deletePage } = useCMS();
   const { toast } = useToast();
   const [selectedPageId, setSelectedPageId] = useState<string | null>(null);
-  const [editorMode, setEditorMode] = useState<'visual' | 'code'>('visual');
+  const [editorMode, setEditorMode] = useState<EditorMode>('visual');
   const [pageData, setPageData] = useState({
     title: '',
     slug: '',
