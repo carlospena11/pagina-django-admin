@@ -8,7 +8,6 @@ import {
   Eye, 
   Undo, 
   Redo,
-  Settings,
   ArrowLeft,
   Monitor,
   Tablet,
@@ -198,7 +197,7 @@ export const VisualEditor: React.FC<VisualEditorProps> = ({ onNavigate }) => {
         </div>
 
         {/* Canvas */}
-        <div className={showPreview ? "col-span-6" : "col-span-8"}>
+        <div className={showPreview ? "col-span-7" : "col-span-10"}>
           <Card className="min-h-[600px]">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -250,7 +249,7 @@ export const VisualEditor: React.FC<VisualEditorProps> = ({ onNavigate }) => {
 
         {/* Preview Panel */}
         {showPreview && (
-          <div className="col-span-2">
+          <div className="col-span-3">
             <Card className="h-full">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -311,44 +310,6 @@ export const VisualEditor: React.FC<VisualEditorProps> = ({ onNavigate }) => {
             </Card>
           </div>
         )}
-
-        {/* Properties Panel */}
-        <div className="col-span-2">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Settings className="w-5 h-5" />
-                Propiedades
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {selectedElement ? (
-                <div className="space-y-4">
-                  <p className="text-sm text-gray-600">
-                    Elemento: {elements.find(el => el.id === selectedElement)?.type}
-                  </p>
-                  <div className="text-xs text-gray-500 space-y-1">
-                    <p>• Diseño responsivo</p>
-                    <p>• Texto legible</p>
-                    <p>• Contraste adecuado</p>
-                  </div>
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  <p className="text-sm text-gray-500">
-                    Selecciona un elemento para editar
-                  </p>
-                  <div className="text-xs text-gray-400 space-y-1">
-                    <p>💡 Consejos de diseño:</p>
-                    <p>• Usa colores contrastantes</p>
-                    <p>• Espaciado consistente</p>
-                    <p>• Tipografía clara</p>
-                  </div>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </div>
       </div>
 
       {/* Image Library Modal */}
@@ -356,7 +317,6 @@ export const VisualEditor: React.FC<VisualEditorProps> = ({ onNavigate }) => {
         <ImageLibrary 
           onClose={() => setShowImageLibrary(false)}
           onSelectImage={(url) => {
-            // Handle image selection
             setShowImageLibrary(false);
           }}
         />
