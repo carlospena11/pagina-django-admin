@@ -1,185 +1,220 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 
 interface SamplePageProps {
   onNavigate?: (view: string) => void;
 }
 
 const SamplePage: React.FC<SamplePageProps> = ({ onNavigate }) => {
+  const [currentTime, setCurrentTime] = useState('');
+  const [weather, setWeather] = useState({
+    temperature: '',
+    condition: '',
+    icon: ''
+  });
+
+  // Update time every second
+  useEffect(() => {
+    const updateTime = () => {
+      const now = new Date();
+      setCurrentTime(now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+    };
+
+    updateTime();
+    const interval = setInterval(updateTime, 1000);
+    
+    return () => clearInterval(interval);
+  }, []);
+
+  // Fetch weather data
+  useEffect(() => {
+    const fetchWeather = async () => {
+      try {
+        const response = await fetch(
+          'https://api.openweathermap.org/data/2.5/weather?q=San Salvador, El Salvador&appid=5bedff37ad0c1cb81be45ad16e06a4cd&units=metric'
+        );
+        const data = await response.json();
+        
+        const temperatura = data.main.temp;
+        const condicionNombre = data.weather[0].description;
+        
+        let weatherIcon = '';
+        if (condicionNombre.includes('nubes') || condicionNombre.includes('lluvia')) {
+          weatherIcon = '☁️';
+        } else if (condicionNombre.includes('sol')) {
+          weatherIcon = '☀️';
+        } else {
+          weatherIcon = '🌧️';
+        }
+
+        setWeather({
+          temperature: `${Math.round(temperatura)}°C`,
+          condition: condicionNombre,
+          icon: weatherIcon
+        });
+      } catch (error) {
+        console.log('No se pudo obtener información del clima');
+      }
+    };
+
+    fetchWeather();
+  }, []);
+
+  const redirectFunctions = {
+    redirectWelcome: () => alert('Redirigiendo a Bienvenida'),
+    redirectPagVuelos: () => alert('Redirigiendo a Vuelos'),
+    redirectPromociones: () => alert('Redirigiendo a Promociones'),
+    redirectMenu: () => alert('Redirigiendo a Menú'),
+    redirectDescubreSV: () => alert('Redirigiendo a Descubre El Salvador'),
+    redirectCCVEOTV: () => alert('Abriendo StreamTV'),
+    redirectNetflix: () => alert('Abriendo Netflix'),
+    redirectPrimeVideo: () => window.open('https://app.primevideo.com', '_blank'),
+    redirectDisney: () => alert('Abriendo Disney+'),
+    redirectYouTube: () => window.open('https://www.youtube.com', '_blank'),
+    redirectWifi: () => alert('Configuración WiFi')
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+    <div 
+      className="min-h-screen font-sans bg-cover bg-center bg-no-repeat"
+      style={{
+        backgroundImage: "url('https://images.unsplash.com/photo-1566073771259-6a8506099945')"
+      }}
+    >
       {/* Header */}
-      <header className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-6">
-            <div className="flex items-center">
-              <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold">S</span>
-              </div>
-              <h1 className="ml-3 text-2xl font-bold text-gray-900">Sitio Web</h1>
-            </div>
-            <nav className="hidden md:flex space-x-8">
-              <a href="#" className="text-gray-700 hover:text-blue-600 transition-colors">Inicio</a>
-              <a href="#" className="text-gray-700 hover:text-blue-600 transition-colors">Servicios</a>
-              <a href="#" className="text-gray-700 hover:text-blue-600 transition-colors">Sobre Nosotros</a>
-              <a href="#" className="text-gray-700 hover:text-blue-600 transition-colors">Contacto</a>
-            </nav>
+      <div className="flex justify-between items-center p-4 lg:px-8">
+        <div className="logo">
+          <img 
+            src="/lovable-uploads/d66c1e8f-9241-47e5-8df8-caffa85796cf.png" 
+            alt="Hotel Hilton" 
+            className="h-20 lg:h-32"
+          />
+        </div>
+        
+        <div className="text-right text-white">
+          <div className="text-xl lg:text-2xl font-bold">{currentTime}</div>
+          <div className="flex items-center justify-end gap-2 mt-2">
+            <span className="text-lg">{weather.icon}</span>
+            <span className="font-bold">{weather.temperature}</span>
           </div>
         </div>
-      </header>
+      </div>
 
-      {/* Hero Section */}
-      <section className="py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6">
-            Bienvenido a Nuestro
-            <span className="text-blue-600 block">Sitio Web</span>
-          </h1>
-          <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
-            Esta es una página de muestra creada con nuestro CMS. Aquí puedes ver cómo se ve el contenido publicado en el sitio web real.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button className="bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 transition-colors">
-              Comenzar Ahora
-            </button>
-            <button className="border border-gray-300 text-gray-700 px-8 py-3 rounded-lg hover:bg-gray-50 transition-colors">
-              Saber Más
-            </button>
-          </div>
-        </div>
-      </section>
-
-      {/* Features Section */}
-      <section className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">Nuestros Servicios</h2>
-            <p className="text-lg text-gray-600">Ofrecemos soluciones integrales para tu negocio</p>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="text-center p-6">
-              <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <span className="text-2xl">🚀</span>
+      {/* Main Content */}
+      <div className="px-4 lg:px-8 pb-8">
+        <div className="max-w-7xl mx-auto">
+          {/* First Row */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+            <div 
+              className="relative h-32 rounded-lg cursor-pointer transition-transform duration-300 hover:scale-105 hover:shadow-xl bg-cover bg-center"
+              style={{
+                backgroundImage: "url('https://images.unsplash.com/photo-1571896349842-33c89424de2d')"
+              }}
+              onClick={redirectFunctions.redirectWelcome}
+            >
+              <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-70 text-white p-2 rounded-b-lg">
+                <div className="text-sm">Bienvenida</div>
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">Desarrollo Web</h3>
-              <p className="text-gray-600">Creamos sitios web modernos y funcionales adaptados a tus necesidades.</p>
             </div>
             
-            <div className="text-center p-6">
-              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <span className="text-2xl">📱</span>
+            <div 
+              className="relative h-32 rounded-lg cursor-pointer transition-transform duration-300 hover:scale-105 hover:shadow-xl bg-cover bg-center"
+              style={{
+                backgroundImage: "url('https://images.unsplash.com/photo-1556388158-158dc0eca2e8')"
+              }}
+              onClick={redirectFunctions.redirectPagVuelos}
+            >
+              <div className="absolute bottom-0 left-0 right-0 bg-blue-600 bg-opacity-70 text-white p-2 rounded-b-lg">
+                <div className="text-sm">Flight Status</div>
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">Diseño Responsivo</h3>
-              <p className="text-gray-600">Todos nuestros diseños se adaptan perfectamente a cualquier dispositivo.</p>
             </div>
-            
-            <div className="text-center p-6">
-              <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <span className="text-2xl">⚡</span>
+          </div>
+
+          {/* Second Row */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <div 
+              className="relative h-32 rounded-lg cursor-pointer transition-transform duration-300 hover:scale-105 hover:shadow-xl bg-cover bg-center"
+              style={{
+                backgroundImage: "url('https://images.unsplash.com/photo-1566073771259-6a8506099945')"
+              }}
+              onClick={redirectFunctions.redirectPromociones}
+            >
+              <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-70 text-white p-2 rounded-b-lg">
+                <div className="text-sm">Enjoy your Hotel</div>
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">Alto Rendimiento</h3>
-              <p className="text-gray-600">Optimizamos cada sitio para máxima velocidad y mejor experiencia.</p>
             </div>
-          </div>
-        </div>
-      </section>
-
-      {/* About Section */}
-      <section className="py-20 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            <div>
-              <h2 className="text-3xl font-bold text-gray-900 mb-6">Sobre Nosotros</h2>
-              <p className="text-lg text-gray-600 mb-6">
-                Somos un equipo de profesionales apasionados por crear experiencias digitales excepcionales. 
-                Con años de experiencia en desarrollo web y diseño, ayudamos a empresas de todos los tamaños 
-                a establecer su presencia online.
-              </p>
-              <p className="text-lg text-gray-600 mb-8">
-                Nuestro enfoque se centra en la calidad, la innovación y la satisfacción del cliente. 
-                Cada proyecto es una oportunidad para superar expectativas y crear algo extraordinario.
-              </p>
-              <button className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors">
-                Conoce Más
-              </button>
-            </div>
-            <div className="relative">
-              <img
-                src="https://images.unsplash.com/photo-1522071820081-009f0129c71c"
-                alt="Equipo trabajando"
-                className="rounded-lg shadow-xl"
-              />
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Contact Section */}
-      <section className="py-20 bg-blue-600">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl font-bold text-white mb-6">¿Listo para comenzar?</h2>
-          <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
-            Contáctanos hoy mismo y descubre cómo podemos ayudarte a llevar tu negocio al siguiente nivel.
-          </p>
-          <button className="bg-white text-blue-600 px-8 py-3 rounded-lg hover:bg-gray-100 transition-colors font-semibold">
-            Contactar Ahora
-          </button>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="bg-gray-900 text-white py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            <div>
-              <div className="flex items-center mb-4">
-                <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-                  <span className="text-white font-bold text-sm">S</span>
-                </div>
-                <span className="ml-2 text-lg font-semibold">Sitio Web</span>
+            
+            <div 
+              className="relative h-32 rounded-lg cursor-pointer transition-transform duration-300 hover:scale-105 hover:shadow-xl bg-cover bg-center"
+              style={{
+                backgroundImage: "url('https://images.unsplash.com/photo-1414235077428-338989a2e8c0')"
+              }}
+              onClick={redirectFunctions.redirectMenu}
+            >
+              <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-70 text-white p-2 rounded-b-lg">
+                <div className="text-sm">Menu and Services</div>
               </div>
-              <p className="text-gray-400">
-                Creando experiencias digitales excepcionales para empresas de todo el mundo.
-              </p>
             </div>
             
-            <div>
-              <h3 className="text-lg font-semibold mb-4">Servicios</h3>
-              <ul className="space-y-2 text-gray-400">
-                <li><a href="#" className="hover:text-white transition-colors">Desarrollo Web</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Diseño UX/UI</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Marketing Digital</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Consultoría</a></li>
-              </ul>
-            </div>
-            
-            <div>
-              <h3 className="text-lg font-semibold mb-4">Empresa</h3>
-              <ul className="space-y-2 text-gray-400">
-                <li><a href="#" className="hover:text-white transition-colors">Sobre Nosotros</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Equipo</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Carreras</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Blog</a></li>
-              </ul>
-            </div>
-            
-            <div>
-              <h3 className="text-lg font-semibold mb-4">Contacto</h3>
-              <ul className="space-y-2 text-gray-400">
-                <li>info@sitioweb.com</li>
-                <li>+1 (555) 123-4567</li>
-                <li>123 Calle Principal</li>
-                <li>Ciudad, País 12345</li>
-              </ul>
+            <div 
+              className="relative h-32 rounded-lg cursor-pointer transition-transform duration-300 hover:scale-105 hover:shadow-xl bg-cover bg-center"
+              style={{
+                backgroundImage: "url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4')"
+              }}
+              onClick={redirectFunctions.redirectDescubreSV}
+            >
+              <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-70 text-white p-2 rounded-b-lg">
+                <div className="text-sm">Discover El Salvador</div>
+              </div>
             </div>
           </div>
-          
-          <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
-            <p>&copy; 2024 Sitio Web. Todos los derechos reservados.</p>
+
+          {/* Third Row - Apps */}
+          <div className="grid grid-cols-3 md:grid-cols-6 gap-4">
+            <div 
+              className="h-16 bg-black rounded-lg cursor-pointer transition-transform duration-300 hover:scale-110 hover:shadow-lg flex items-center justify-center text-white font-bold"
+              onClick={redirectFunctions.redirectCCVEOTV}
+            >
+              📺
+            </div>
+            
+            <div 
+              className="h-16 bg-red-600 rounded-lg cursor-pointer transition-transform duration-300 hover:scale-110 hover:shadow-lg flex items-center justify-center text-white font-bold"
+              onClick={redirectFunctions.redirectNetflix}
+            >
+              N
+            </div>
+            
+            <div 
+              className="h-16 bg-blue-500 rounded-lg cursor-pointer transition-transform duration-300 hover:scale-110 hover:shadow-lg flex items-center justify-center text-white font-bold"
+              onClick={redirectFunctions.redirectPrimeVideo}
+            >
+              Prime
+            </div>
+            
+            <div 
+              className="h-16 bg-blue-700 rounded-lg cursor-pointer transition-transform duration-300 hover:scale-110 hover:shadow-lg flex items-center justify-center text-white font-bold"
+              onClick={redirectFunctions.redirectDisney}
+            >
+              D+
+            </div>
+            
+            <div 
+              className="h-16 bg-red-500 rounded-lg cursor-pointer transition-transform duration-300 hover:scale-110 hover:shadow-lg flex items-center justify-center text-white font-bold"
+              onClick={redirectFunctions.redirectYouTube}
+            >
+              ▶️
+            </div>
+            
+            <div 
+              className="h-16 bg-green-600 rounded-lg cursor-pointer transition-transform duration-300 hover:scale-110 hover:shadow-lg flex items-center justify-center text-white font-bold"
+              onClick={redirectFunctions.redirectWifi}
+            >
+              📶
+            </div>
           </div>
         </div>
-      </footer>
+      </div>
     </div>
   );
 };
