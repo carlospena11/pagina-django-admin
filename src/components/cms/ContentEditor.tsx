@@ -31,7 +31,7 @@ export const ContentEditor: React.FC<ContentEditorProps> = ({ onNavigate }) => {
   const { pages, addPage, updatePage, deletePage } = useCMS();
   const { toast } = useToast();
   const [selectedPageId, setSelectedPageId] = useState<string | null>(null);
-  const [editorMode, setEditorMode] = useState<'visual' | 'code'>('code');
+  const [editorMode, setEditorMode] = useState<'visual' | 'code'>('visual');
   const [pageData, setPageData] = useState({
     title: '',
     slug: '',
@@ -92,6 +92,7 @@ export const ContentEditor: React.FC<ContentEditorProps> = ({ onNavigate }) => {
     console.log('Vista previa de la página');
   };
 
+  // Redirect to Visual Editor if visual mode is selected
   if (editorMode === 'visual') {
     return <VisualEditor onNavigate={onNavigate} />;
   }
@@ -163,7 +164,7 @@ export const ContentEditor: React.FC<ContentEditorProps> = ({ onNavigate }) => {
     );
   }
 
-  // Content Editor
+  // Content Editor (Code Mode)
   return (
     <div className="space-y-6">
       {/* Header */}

@@ -25,8 +25,14 @@ export const DragDropToolbar: React.FC<DragDropToolbarProps> = ({
   onShowImageLibrary 
 }) => {
   const handleDragStart = (e: React.DragEvent, elementType: string) => {
+    console.log('Drag start:', elementType);
     e.dataTransfer.setData('text/plain', elementType);
+    e.dataTransfer.effectAllowed = 'copy';
     onDragStart(elementType);
+  };
+
+  const handleDragEnd = (e: React.DragEvent) => {
+    console.log('Drag end');
   };
 
   const elements = [
@@ -98,7 +104,8 @@ export const DragDropToolbar: React.FC<DragDropToolbarProps> = ({
                 key={element.type}
                 draggable
                 onDragStart={(e) => handleDragStart(e, element.type)}
-                className="flex items-center gap-3 p-3 border rounded-lg cursor-grab hover:bg-gray-50 hover:border-blue-300 transition-all group active:cursor-grabbing"
+                onDragEnd={handleDragEnd}
+                className="flex items-center gap-3 p-3 border rounded-lg cursor-grab hover:bg-gray-50 hover:border-blue-300 transition-all group active:cursor-grabbing select-none"
                 title={element.description}
               >
                 <Icon className="w-5 h-5 text-gray-600 group-hover:text-blue-600" />
@@ -139,8 +146,8 @@ export const DragDropToolbar: React.FC<DragDropToolbarProps> = ({
         <CardContent>
           <div className="text-xs text-gray-600 space-y-2">
             <p>🖱️ Arrastra elementos al canvas</p>
-            <p>✏️ Haz clic para editar</p>
-            <p>🎨 Usa el panel de propiedades</p>
+            <p>✏️ Haz doble clic para editar</p>
+            <p>🎨 Usa los controles para mover</p>
             <p>💾 No olvides guardar</p>
           </div>
         </CardContent>

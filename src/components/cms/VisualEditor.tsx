@@ -66,6 +66,8 @@ export const VisualEditor: React.FC<VisualEditorProps> = ({ onNavigate }) => {
 
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
+    console.log('Drop event triggered');
+    
     const elementType = e.dataTransfer.getData('text/plain');
     const rect = canvasRef.current?.getBoundingClientRect();
     
@@ -99,9 +101,14 @@ export const VisualEditor: React.FC<VisualEditorProps> = ({ onNavigate }) => {
       console.log('Adding new element:', newElement);
       setElements(prev => [...prev, newElement]);
       setSelectedElement(newElement.id);
+      
+      toast({
+        title: "Elemento añadido",
+        description: `Se ha añadido un ${elementType} al canvas.`,
+      });
     }
     setIsDragging(false);
-  }, []);
+  }, [toast]);
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -119,7 +126,11 @@ export const VisualEditor: React.FC<VisualEditorProps> = ({ onNavigate }) => {
     console.log('Deleting element:', elementId);
     setElements(prev => prev.filter(el => el.id !== elementId));
     setSelectedElement(null);
-  }, []);
+    toast({
+      title: "Elemento eliminado",
+      description: "El elemento se ha eliminado del canvas.",
+    });
+  }, [toast]);
 
   const handleCanvasClick = useCallback((e: React.MouseEvent) => {
     // Only deselect if clicking directly on the canvas, not on child elements
@@ -230,6 +241,11 @@ export const VisualEditor: React.FC<VisualEditorProps> = ({ onNavigate }) => {
               <CardTitle className="flex items-center gap-2">
                 <Tv className="w-5 h-5" />
                 Canvas de Edición - TV
+                {isDragging && (
+                  <Badge variant="secondary" className="ml-2">
+                    Arrastrando...
+                  </Badge>
+                )}
               </CardTitle>
             </CardHeader>
             <CardContent className="p-0">
@@ -237,12 +253,14 @@ export const VisualEditor: React.FC<VisualEditorProps> = ({ onNavigate }) => {
                 <div className="transition-all duration-300 max-w-6xl aspect-video">
                   <div
                     ref={canvasRef}
-                    className="relative w-full h-full border-2 border-dashed border-gray-200 overflow-hidden bg-black"
+                    className={`relative w-full h-full border-2 ${
+                      isDragging ? 'border-blue-400 bg-blue-50' : 'border-dashed border-gray-200'
+                    } overflow-hidden bg-black transition-all duration-200`}
                     onDragOver={handleDragOver}
                     onDrop={handleDrop}
                     onClick={handleCanvasClick}
                     style={{ 
-                      backgroundImage: isDragging ? 'radial-gradient(circle, rgba(255,255,255,0.05) 1px, transparent 1px)' : 'none',
+                      backgroundImage: isDragging ? 'radial-gradient(circle, rgba(59, 130, 246, 0.1) 1px, transparent 1px)' : 'none',
                       backgroundSize: isDragging ? '20px 20px' : 'auto',
                       minHeight: '400px'
                     }}
