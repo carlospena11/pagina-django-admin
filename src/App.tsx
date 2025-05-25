@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -9,6 +10,7 @@ import SamplePage from "./pages/SamplePage";
 import HiltonDemo from "./pages/HiltonDemo";
 import FlightStatus from "./pages/FlightStatus";
 import WelcomePage from "./pages/WelcomePage";
+import HotelExperiencePage from "./pages/HotelExperiencePage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
