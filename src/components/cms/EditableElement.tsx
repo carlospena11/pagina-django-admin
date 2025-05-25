@@ -18,13 +18,15 @@ interface EditableElementProps {
   isSelected: boolean;
   onSelect: (id: string) => void;
   onUpdate: (id: string, updates: any) => void;
+  onDelete: (id: string) => void;
 }
 
 export const EditableElement: React.FC<EditableElementProps> = ({
   element,
   isSelected,
   onSelect,
-  onUpdate
+  onUpdate,
+  onDelete
 }) => {
   const [isDragging, setIsDragging] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -33,7 +35,10 @@ export const EditableElement: React.FC<EditableElementProps> = ({
   const startPos = useRef({ x: 0, y: 0 });
 
   const handleMouseDown = (e: React.MouseEvent) => {
-    if (e.target !== e.currentTarget) return;
+    if (e.target !== e.currentTarget && !e.currentTarget.contains(e.target as Node)) return;
+    
+    e.preventDefault();
+    e.stopPropagation();
     
     setIsDragging(true);
     onSelect(element.id);
@@ -45,28 +50,35 @@ export const EditableElement: React.FC<EditableElementProps> = ({
         y: e.clientY - rect.top - element.y
       };
     }
-  };
 
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (!isDragging) return;
-    
-    const rect = dragRef.current?.parentElement?.getBoundingClientRect();
-    if (rect) {
-      const newX = e.clientX - rect.left - startPos.current.x;
-      const newY = e.clientY - rect.top - startPos.current.y;
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!isDragging) return;
       
-      onUpdate(element.id, {
-        x: Math.max(0, Math.min(newX, rect.width - element.width)),
-        y: Math.max(0, Math.min(newY, rect.height - element.height))
-      });
-    }
+      const rect = dragRef.current?.parentElement?.getBoundingClientRect();
+      if (rect) {
+        const newX = e.clientX - rect.left - startPos.current.x;
+        const newY = e.clientY - rect.top - startPos.current.y;
+        
+        onUpdate(element.id, {
+          x: Math.max(0, Math.min(newX, rect.width - element.width)),
+          y: Math.max(0, Math.min(newY, rect.height - element.height))
+        });
+      }
+    };
+
+    const handleMouseUp = () => {
+      setIsDragging(false);
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
+
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
   };
 
-  const handleMouseUp = () => {
-    setIsDragging(false);
-  };
-
-  const handleDoubleClick = () => {
+  const handleDoubleClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
     if (element.type === 'text' || element.type === 'heading') {
       setIsEditing(true);
       setEditValue(element.content);
@@ -83,9 +95,10 @@ export const EditableElement: React.FC<EditableElementProps> = ({
     setIsEditing(false);
   };
 
-  const handleDelete = () => {
-    // This would need to be implemented in parent component
-    console.log('Delete element:', element.id);
+  const handleDelete = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    onDelete(element.id);
   };
 
   const renderContent = () => {
@@ -99,7 +112,7 @@ export const EditableElement: React.FC<EditableElementProps> = ({
             if (e.key === 'Enter') handleEditSave();
             if (e.key === 'Escape') handleEditCancel();
           }}
-          className="w-full h-full border-none shadow-none p-1"
+          className="w-full h-full border-none shadow-none p-1 text-white bg-transparent"
           autoFocus
         />
       );
@@ -109,7 +122,7 @@ export const EditableElement: React.FC<EditableElementProps> = ({
       case 'text':
         return (
           <p 
-            className="w-full h-full p-2 text-sm cursor-text"
+            className="w-full h-full p-2 text-sm cursor-text text-white"
             style={element.styles}
           >
             {element.content}
@@ -119,7 +132,7 @@ export const EditableElement: React.FC<EditableElementProps> = ({
       case 'heading':
         return (
           <h2 
-            className="w-full h-full p-2 text-lg font-bold cursor-text"
+            className="w-full h-full p-2 text-lg font-bold cursor-text text-white"
             style={element.styles}
           >
             {element.content}
@@ -167,8 +180,6 @@ export const EditableElement: React.FC<EditableElementProps> = ({
         zIndex: isSelected ? 10 : 1
       }}
       onMouseDown={handleMouseDown}
-      onMouseMove={handleMouseMove}
-      onMouseUp={handleMouseUp}
       onDoubleClick={handleDoubleClick}
       onClick={(e) => {
         e.stopPropagation();
@@ -176,7 +187,7 @@ export const EditableElement: React.FC<EditableElementProps> = ({
       }}
     >
       {/* Content */}
-      <div className="w-full h-full border border-transparent group-hover:border-blue-300">
+      <div className="w-full h-full border border-transparent group-hover:border-blue-300 bg-opacity-80 bg-gray-800 rounded">
         {renderContent()}
       </div>
       
@@ -196,7 +207,11 @@ export const EditableElement: React.FC<EditableElementProps> = ({
             size="sm"
             className="h-6 w-6 p-0"
             title="Editar"
-            onClick={() => setIsEditing(true)}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setIsEditing(true);
+            }}
           >
             <Edit3 className="w-3 h-3" />
           </Button>

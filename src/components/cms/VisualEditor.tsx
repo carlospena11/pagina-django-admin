@@ -16,6 +16,7 @@ import { DragDropToolbar } from './DragDropToolbar';
 import { EditableElement } from './EditableElement';
 import { ImageLibrary } from './ImageLibrary';
 import { useCMS } from '@/contexts/CMSContext';
+import { useToast } from '@/hooks/use-toast';
 
 interface VisualEditorProps {
   onNavigate?: (view: string) => void;
@@ -23,6 +24,7 @@ interface VisualEditorProps {
 
 export const VisualEditor: React.FC<VisualEditorProps> = ({ onNavigate }) => {
   const { pages, updatePage } = useCMS();
+  const { toast } = useToast();
   const [selectedPageId, setSelectedPageId] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [selectedElement, setSelectedElement] = useState<string | null>(null);
@@ -33,11 +35,32 @@ export const VisualEditor: React.FC<VisualEditorProps> = ({ onNavigate }) => {
 
   const selectedPage = pages.find(p => p.id === selectedPageId);
 
+  // Load existing page content when page is selected
+  React.useEffect(() => {
+    if (selectedPage && selectedPage.content) {
+      try {
+        const pageContent = JSON.parse(selectedPage.content);
+        if (pageContent.elements) {
+          setElements(pageContent.elements);
+        } else {
+          setElements([]);
+        }
+      } catch (e) {
+        // If content is not JSON, start with empty elements
+        setElements([]);
+      }
+    } else {
+      setElements([]);
+    }
+  }, [selectedPage]);
+
   const handleDragStart = useCallback((elementType: string) => {
+    console.log('Drag start:', elementType);
     setIsDragging(true);
   }, []);
 
   const handleDragEnd = useCallback(() => {
+    console.log('Drag end');
     setIsDragging(false);
   }, []);
 
@@ -46,36 +69,63 @@ export const VisualEditor: React.FC<VisualEditorProps> = ({ onNavigate }) => {
     const elementType = e.dataTransfer.getData('text/plain');
     const rect = canvasRef.current?.getBoundingClientRect();
     
-    if (rect) {
+    console.log('Drop event:', elementType, rect);
+    
+    if (rect && elementType) {
       const x = e.clientX - rect.left;
       const y = e.clientY - rect.top;
       
       const newElement = {
-        id: `element-${Date.now()}`,
+        id: `element-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
         type: elementType,
-        x,
-        y,
+        x: Math.max(0, Math.min(x - 50, rect.width - 250)),
+        y: Math.max(0, Math.min(y - 25, rect.height - 150)),
         width: elementType === 'text' ? 300 : 250,
-        height: elementType === 'text' ? 40 : 150,
+        height: elementType === 'text' ? 40 : 
+                elementType === 'heading' ? 60 :
+                elementType === 'button' ? 40 : 150,
         content: elementType === 'text' ? 'Nuevo texto' : 
                 elementType === 'heading' ? 'Título' :
-                elementType === 'button' ? 'Botón' : '/placeholder.svg',
+                elementType === 'button' ? 'Botón' : 
+                elementType === 'image' ? 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=400' : 'Elemento',
         styles: {
           fontSize: elementType === 'text' ? '16px' : 
                   elementType === 'heading' ? '32px' : '14px',
           fontWeight: elementType === 'heading' ? 'bold' : 'normal',
-          color: '#333333'
+          color: '#ffffff'
         }
       };
       
-      setElements([...elements, newElement]);
+      console.log('Adding new element:', newElement);
+      setElements(prev => [...prev, newElement]);
+      setSelectedElement(newElement.id);
     }
-  }, [elements]);
+    setIsDragging(false);
+  }, []);
+
+  const handleDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'copy';
+  }, []);
 
   const handleElementUpdate = useCallback((elementId: string, updates: any) => {
+    console.log('Updating element:', elementId, updates);
     setElements(prev => prev.map(el => 
       el.id === elementId ? { ...el, ...updates } : el
     ));
+  }, []);
+
+  const handleElementDelete = useCallback((elementId: string) => {
+    console.log('Deleting element:', elementId);
+    setElements(prev => prev.filter(el => el.id !== elementId));
+    setSelectedElement(null);
+  }, []);
+
+  const handleCanvasClick = useCallback((e: React.MouseEvent) => {
+    // Only deselect if clicking directly on the canvas, not on child elements
+    if (e.target === e.currentTarget) {
+      setSelectedElement(null);
+    }
   }, []);
 
   const handleSave = () => {
@@ -87,6 +137,10 @@ export const VisualEditor: React.FC<VisualEditorProps> = ({ onNavigate }) => {
       updatePage(selectedPage.id, { 
         content: JSON.stringify(pageContent),
         lastModified: new Date().toISOString().split('T')[0]
+      });
+      toast({
+        title: "Página guardada",
+        description: "La página se ha guardado exitosamente.",
       });
       console.log('Página guardada exitosamente');
     }
@@ -184,8 +238,9 @@ export const VisualEditor: React.FC<VisualEditorProps> = ({ onNavigate }) => {
                   <div
                     ref={canvasRef}
                     className="relative w-full h-full border-2 border-dashed border-gray-200 overflow-hidden bg-black"
-                    onDragOver={(e) => e.preventDefault()}
+                    onDragOver={handleDragOver}
                     onDrop={handleDrop}
+                    onClick={handleCanvasClick}
                     style={{ 
                       backgroundImage: isDragging ? 'radial-gradient(circle, rgba(255,255,255,0.05) 1px, transparent 1px)' : 'none',
                       backgroundSize: isDragging ? '20px 20px' : 'auto',
@@ -200,16 +255,21 @@ export const VisualEditor: React.FC<VisualEditorProps> = ({ onNavigate }) => {
                         isSelected={selectedElement === element.id}
                         onSelect={setSelectedElement}
                         onUpdate={handleElementUpdate}
+                        onDelete={handleElementDelete}
                       />
                     ))}
                     
                     {/* Drop Zone Hint */}
-                    {isDragging && elements.length === 0 && (
-                      <div className="absolute inset-0 flex items-center justify-center">
+                    {(isDragging || elements.length === 0) && (
+                      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                         <div className="text-center text-white">
                           <div className="text-4xl mb-4">📺</div>
-                          <p className="text-xl">Arrastra elementos para TV</p>
-                          <p className="text-sm opacity-75 mt-2">Diseña tu interfaz de televisión</p>
+                          <p className="text-xl">
+                            {isDragging ? 'Suelta el elemento aquí' : 'Arrastra elementos para TV'}
+                          </p>
+                          <p className="text-sm opacity-75 mt-2">
+                            {isDragging ? 'Posiciona tu elemento en el canvas' : 'Diseña tu interfaz de televisión'}
+                          </p>
                         </div>
                       </div>
                     )}
@@ -262,7 +322,7 @@ export const VisualEditor: React.FC<VisualEditorProps> = ({ onNavigate }) => {
                             <div className="bg-gray-700 w-full h-full rounded"></div>
                           )}
                           {element.type === 'button' && (
-                            <div className="bg-blue-500 w-full h-full rounded text-center text-white text-xs">
+                            <div className="bg-blue-500 w-full h-full rounded text-center text-white text-xs flex items-center justify-center">
                               BTN
                             </div>
                           )}
@@ -274,6 +334,7 @@ export const VisualEditor: React.FC<VisualEditorProps> = ({ onNavigate }) => {
                   <div className="text-xs text-gray-500 space-y-1">
                     <p>• Elementos: {elements.length}</p>
                     <p>• Modo: TV</p>
+                    <p>• Seleccionado: {selectedElement ? '1' : '0'}</p>
                   </div>
                 </div>
               </CardContent>

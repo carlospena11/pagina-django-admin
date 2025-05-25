@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -30,7 +31,7 @@ export const ContentEditor: React.FC<ContentEditorProps> = ({ onNavigate }) => {
   const { pages, addPage, updatePage, deletePage } = useCMS();
   const { toast } = useToast();
   const [selectedPageId, setSelectedPageId] = useState<string | null>(null);
-  const [editorMode, setEditorMode] = useState<'visual' | 'code'>('visual');
+  const [editorMode, setEditorMode] = useState<'visual' | 'code'>('code');
   const [pageData, setPageData] = useState({
     title: '',
     slug: '',
