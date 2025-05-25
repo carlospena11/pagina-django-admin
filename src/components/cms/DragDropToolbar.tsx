@@ -25,16 +25,29 @@ export const DragDropToolbar: React.FC<DragDropToolbarProps> = ({
   onShowImageLibrary 
 }) => {
   const handleDragStart = (e: React.DragEvent, elementType: string) => {
-    console.log('🚀 Drag start:', elementType);
+    console.log('🚀 Iniciando arrastre:', elementType);
+    
+    // Configurar múltiples formatos de datos para máxima compatibilidad
     e.dataTransfer.setData('application/json', JSON.stringify({ type: elementType }));
-    e.dataTransfer.setData('text/plain', elementType); // Fallback
+    e.dataTransfer.setData('text/plain', elementType);
+    e.dataTransfer.setData('text/html', elementType);
+    
+    // Configurar efectos de arrastre
     e.dataTransfer.effectAllowed = 'copy';
+    e.dataTransfer.dropEffect = 'copy';
+    
+    // Llamar al callback
     onDragStart(elementType);
   };
 
   const handleDragEnd = (e: React.DragEvent) => {
-    console.log('🏁 Drag end');
+    console.log('🏁 Finalizando arrastre');
     e.dataTransfer.clearData();
+  };
+
+  // Prevenir comportamiento por defecto en dragover
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
   };
 
   const elements = [
@@ -115,16 +128,20 @@ export const DragDropToolbar: React.FC<DragDropToolbarProps> = ({
                 draggable={true}
                 onDragStart={(e) => handleDragStart(e, element.type)}
                 onDragEnd={handleDragEnd}
+                onDragOver={handleDragOver}
                 className="flex items-center gap-3 p-3 border-2 border-dashed border-gray-200 rounded-lg cursor-grab hover:bg-blue-50 hover:border-blue-300 transition-all group active:cursor-grabbing select-none bg-white shadow-sm"
                 title={`Arrastra para añadir: ${element.description}`}
-                style={{ touchAction: 'none' }}
+                style={{ 
+                  touchAction: 'none',
+                  userSelect: 'none'
+                }}
               >
-                <Icon className={`w-5 h-5 ${element.color} group-hover:scale-110 transition-transform`} />
-                <div className="flex-1">
+                <Icon className={`w-5 h-5 ${element.color} group-hover:scale-110 transition-transform pointer-events-none`} />
+                <div className="flex-1 pointer-events-none">
                   <p className="text-sm font-medium text-gray-900">{element.label}</p>
                   <p className="text-xs text-gray-500">{element.description}</p>
                 </div>
-                <div className="text-xs text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity">
+                <div className="text-xs text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
                   ↗️ Arrastra
                 </div>
               </div>

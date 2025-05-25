@@ -33,6 +33,7 @@ export const VisualEditor: React.FC<VisualEditorProps> = ({ onNavigate }) => {
   const [showImageLibrary, setShowImageLibrary] = useState(false);
   const [showPreview, setShowPreview] = useState(true);
   const [elements, setElements] = useState<any[]>([]);
+  const [dragCounter, setDragCounter] = useState(0);
   const canvasRef = useRef<HTMLDivElement>(null);
 
   const selectedPage = pages.find(p => p.id === selectedPageId);
@@ -43,14 +44,14 @@ export const VisualEditor: React.FC<VisualEditorProps> = ({ onNavigate }) => {
       try {
         const pageContent = JSON.parse(selectedPage.content);
         if (pageContent.elements && Array.isArray(pageContent.elements)) {
-          console.log('📄 Loading elements from page:', pageContent.elements);
+          console.log('📄 Cargando elementos de la página:', pageContent.elements);
           setElements(pageContent.elements);
         } else {
-          console.log('📄 No elements found, starting fresh');
+          console.log('📄 No se encontraron elementos, empezando desde cero');
           setElements([]);
         }
       } catch (e) {
-        console.log('📄 Content is not JSON, starting with empty elements');
+        console.log('📄 El contenido no es JSON, empezando con elementos vacíos');
         setElements([]);
       }
     } else {
@@ -59,47 +60,81 @@ export const VisualEditor: React.FC<VisualEditorProps> = ({ onNavigate }) => {
   }, [selectedPage]);
 
   const handleDragStart = useCallback((elementType: string) => {
-    console.log('🎯 Drag start detected:', elementType);
+    console.log('🎯 Inicio de arrastre detectado:', elementType);
     setIsDragging(true);
     setDragElementType(elementType);
+    setDragCounter(0);
   }, []);
 
   const handleDragEnd = useCallback(() => {
-    console.log('🏁 Drag ended');
+    console.log('🏁 Arrastre finalizado');
     setIsDragging(false);
     setDragElementType('');
+    setDragCounter(0);
+  }, []);
+
+  const handleDragEnter = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragCounter(prev => prev + 1);
+    console.log('🎯 Entrando al canvas, contador:', dragCounter + 1);
+  }, [dragCounter]);
+
+  const handleDragLeave = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragCounter(prev => {
+      const newCount = prev - 1;
+      console.log('🚪 Saliendo del canvas, contador:', newCount);
+      return newCount;
+    });
+  }, []);
+
+  const handleDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    e.dataTransfer.dropEffect = 'copy';
   }, []);
 
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    setDragCounter(0);
     
-    console.log('💧 Drop event triggered on canvas');
+    console.log('💧 Evento de soltar activado en el canvas');
     
     let elementType = '';
     
-    // Try to get data from different formats
+    // Intentar obtener datos de diferentes formatos
     try {
       const jsonData = e.dataTransfer.getData('application/json');
       if (jsonData) {
         const parsed = JSON.parse(jsonData);
         elementType = parsed.type;
+        console.log('📦 Datos JSON encontrados:', elementType);
       }
-    } catch (e) {
-      console.log('No JSON data found');
+    } catch (err) {
+      console.log('❌ Error al parsear JSON:', err);
     }
     
     if (!elementType) {
       elementType = e.dataTransfer.getData('text/plain');
+      console.log('📝 Datos de texto encontrados:', elementType);
+    }
+    
+    if (!elementType) {
+      elementType = e.dataTransfer.getData('text/html');
+      console.log('🔗 Datos HTML encontrados:', elementType);
     }
     
     if (!elementType && dragElementType) {
       elementType = dragElementType;
+      console.log('🎯 Usando tipo de arrastre guardado:', elementType);
     }
     
     const rect = canvasRef.current?.getBoundingClientRect();
     
-    console.log('💧 Drop details:', { elementType, rect, dragElementType });
+    console.log('💧 Detalles del soltar:', { elementType, rect, dragElementType });
     
     if (rect && elementType) {
       const x = Math.max(20, Math.min(e.clientX - rect.left - 100, rect.width - 220));
@@ -134,10 +169,10 @@ export const VisualEditor: React.FC<VisualEditorProps> = ({ onNavigate }) => {
         }
       };
       
-      console.log('✨ Adding new element:', newElement);
+      console.log('✨ Añadiendo nuevo elemento:', newElement);
       setElements(prev => {
         const newElements = [...prev, newElement];
-        console.log('📝 Updated elements array:', newElements);
+        console.log('📝 Array de elementos actualizado:', newElements);
         return newElements;
       });
       setSelectedElement(newElement.id);
@@ -147,7 +182,7 @@ export const VisualEditor: React.FC<VisualEditorProps> = ({ onNavigate }) => {
         description: `Se ha añadido ${elementType} al canvas. Haz doble clic para editar.`,
       });
     } else {
-      console.log('❌ Drop failed - missing elementType or rect', { elementType, rect });
+      console.log('❌ Fallo al soltar - falta elementType o rect', { elementType, rect });
       toast({
         title: "Error al añadir elemento",
         description: "No se pudo determinar el tipo de elemento o la posición.",
@@ -158,28 +193,22 @@ export const VisualEditor: React.FC<VisualEditorProps> = ({ onNavigate }) => {
     handleDragEnd();
   }, [dragElementType, toast, handleDragEnd]);
 
-  const handleDragOver = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    e.dataTransfer.dropEffect = 'copy';
-  }, []);
-
   const handleElementUpdate = useCallback((elementId: string, updates: any) => {
-    console.log('🔄 Updating element:', elementId, updates);
+    console.log('🔄 Actualizando elemento:', elementId, updates);
     setElements(prev => {
       const updated = prev.map(el => 
         el.id === elementId ? { ...el, ...updates } : el
       );
-      console.log('📝 Elements after update:', updated);
+      console.log('📝 Elementos después de actualizar:', updated);
       return updated;
     });
   }, []);
 
   const handleElementDelete = useCallback((elementId: string) => {
-    console.log('🗑️ Deleting element:', elementId);
+    console.log('🗑️ Eliminando elemento:', elementId);
     setElements(prev => {
       const filtered = prev.filter(el => el.id !== elementId);
-      console.log('📝 Elements after delete:', filtered);
+      console.log('📝 Elementos después de eliminar:', filtered);
       return filtered;
     });
     setSelectedElement(null);
@@ -191,7 +220,7 @@ export const VisualEditor: React.FC<VisualEditorProps> = ({ onNavigate }) => {
 
   const handleCanvasClick = useCallback((e: React.MouseEvent) => {
     if (e.target === e.currentTarget) {
-      console.log('📍 Canvas clicked - deselecting elements');
+      console.log('📍 Canvas clickeado - deseleccionando elementos');
       setSelectedElement(null);
     }
   }, []);
@@ -203,7 +232,7 @@ export const VisualEditor: React.FC<VisualEditorProps> = ({ onNavigate }) => {
         layout: 'tv',
         version: '1.0'
       };
-      console.log('💾 Saving page content:', pageContent);
+      console.log('💾 Guardando contenido de página:', pageContent);
       updatePage(selectedPage.id, { 
         content: JSON.stringify(pageContent),
         lastModified: new Date().toISOString().split('T')[0]
@@ -318,6 +347,11 @@ export const VisualEditor: React.FC<VisualEditorProps> = ({ onNavigate }) => {
                       Arrastrando {dragElementType}...
                     </Badge>
                   )}
+                  {dragCounter > 0 && (
+                    <Badge variant="outline" className="ml-2 bg-blue-50">
+                      Zona de soltar activa
+                    </Badge>
+                  )}
                 </div>
                 <div className="text-sm text-gray-500">
                   {elements.length} elemento{elements.length !== 1 ? 's' : ''}
@@ -330,26 +364,20 @@ export const VisualEditor: React.FC<VisualEditorProps> = ({ onNavigate }) => {
                   <div
                     ref={canvasRef}
                     className={`relative w-full aspect-video border-4 ${
-                      isDragging 
+                      isDragging || dragCounter > 0
                         ? 'border-blue-500 bg-blue-900/20 shadow-lg' 
                         : 'border-dashed border-gray-300'
                     } overflow-hidden bg-black transition-all duration-200 rounded-lg`}
                     onDragOver={handleDragOver}
                     onDrop={handleDrop}
-                    onDragEnter={(e) => {
-                      e.preventDefault();
-                      console.log('🎯 Drag enter canvas');
-                    }}
-                    onDragLeave={(e) => {
-                      e.preventDefault();
-                      console.log('🚪 Drag leave canvas');
-                    }}
+                    onDragEnter={handleDragEnter}
+                    onDragLeave={handleDragLeave}
                     onClick={handleCanvasClick}
                     style={{ 
-                      backgroundImage: isDragging 
+                      backgroundImage: isDragging || dragCounter > 0
                         ? 'radial-gradient(circle, rgba(59, 130, 246, 0.2) 2px, transparent 2px)' 
                         : 'none',
-                      backgroundSize: isDragging ? '30px 30px' : 'auto',
+                      backgroundSize: isDragging || dragCounter > 0 ? '30px 30px' : 'auto',
                       minHeight: '500px'
                     }}
                   >
@@ -368,11 +396,11 @@ export const VisualEditor: React.FC<VisualEditorProps> = ({ onNavigate }) => {
                     {/* Drop Zone Hint */}
                     <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                       <div className="text-center text-white">
-                        {isDragging ? (
+                        {isDragging || dragCounter > 0 ? (
                           <>
                             <div className="text-6xl mb-4 animate-bounce">📺</div>
                             <p className="text-2xl font-bold">
-                              Suelta aquí tu {dragElementType}
+                              Suelta aquí tu {dragElementType || 'elemento'}
                             </p>
                             <p className="text-lg opacity-75 mt-2">
                               Posiciónalo donde quieras en el canvas
@@ -458,7 +486,7 @@ export const VisualEditor: React.FC<VisualEditorProps> = ({ onNavigate }) => {
                     <p>• Elementos: {elements.length}</p>
                     <p>• Modo: TV Panorámico</p>
                     <p>• Seleccionado: {selectedElement ? '1' : '0'}</p>
-                    <p>• Estado: {isDragging ? 'Arrastrando' : 'Listo'}</p>
+                    <p>• Estado: {isDragging ? 'Arrastrando' : dragCounter > 0 ? 'Zona activa' : 'Listo'}</p>
                   </div>
                   
                   {selectedPage?.slug && (

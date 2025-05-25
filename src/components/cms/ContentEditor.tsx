@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -26,13 +27,11 @@ interface ContentEditorProps {
   onNavigate?: (view: string) => void;
 }
 
-type EditorMode = 'visual' | 'code';
-
 export const ContentEditor: React.FC<ContentEditorProps> = ({ onNavigate }) => {
   const { pages, addPage, updatePage, deletePage } = useCMS();
   const { toast } = useToast();
   const [selectedPageId, setSelectedPageId] = useState<string | null>(null);
-  const [editorMode, setEditorMode] = useState<EditorMode>('visual');
+  const [editorMode, setEditorMode] = useState<'visual' | 'code'>('visual');
   const [pageData, setPageData] = useState({
     title: '',
     slug: '',
@@ -91,9 +90,16 @@ export const ContentEditor: React.FC<ContentEditorProps> = ({ onNavigate }) => {
 
   const handlePreview = () => {
     if (selectedPage && selectedPage.slug) {
-      // Open page in new tab
       window.open(`/${selectedPage.slug}`, '_blank');
     }
+  };
+
+  const switchToVisualEditor = () => {
+    setEditorMode('visual');
+  };
+
+  const switchToCodeEditor = () => {
+    setEditorMode('code');
   };
 
   // Redirect to Visual Editor if visual mode is selected
@@ -113,7 +119,7 @@ export const ContentEditor: React.FC<ContentEditorProps> = ({ onNavigate }) => {
           <div className="flex gap-2">
             <Button 
               variant={editorMode === 'visual' ? 'default' : 'outline'} 
-              onClick={() => setEditorMode('visual')}
+              onClick={switchToVisualEditor}
               className="flex items-center gap-2"
             >
               <Tv className="w-4 h-4" />
@@ -121,7 +127,7 @@ export const ContentEditor: React.FC<ContentEditorProps> = ({ onNavigate }) => {
             </Button>
             <Button 
               variant={editorMode === 'code' ? 'default' : 'outline'} 
-              onClick={() => setEditorMode('code')}
+              onClick={switchToCodeEditor}
               className="flex items-center gap-2"
             >
               <Code className="w-4 h-4" />
@@ -222,7 +228,7 @@ export const ContentEditor: React.FC<ContentEditorProps> = ({ onNavigate }) => {
         <div className="flex gap-2">
           <Button 
             variant={editorMode === 'visual' ? 'default' : 'outline'} 
-            onClick={() => setEditorMode('visual')}
+            onClick={switchToVisualEditor}
             className="flex items-center gap-2"
           >
             <Tv className="w-4 h-4" />
@@ -230,7 +236,7 @@ export const ContentEditor: React.FC<ContentEditorProps> = ({ onNavigate }) => {
           </Button>
           <Button 
             variant={editorMode === 'code' ? 'default' : 'outline'} 
-            onClick={() => setEditorMode('code')}
+            onClick={switchToCodeEditor}
             className="flex items-center gap-2"
           >
             <Code className="w-4 h-4" />
