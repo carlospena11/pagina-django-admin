@@ -20,7 +20,7 @@ const WelcomePage: React.FC = () => {
     <div 
       className="min-h-screen bg-cover bg-center bg-no-repeat flex flex-col items-center overflow-hidden"
       style={{
-        backgroundImage: "url('https://images.unsplash.com/photo-1566073771259-6a8506099945')"
+        backgroundImage: "url('/lovable-uploads/c5704d60-cee9-4693-aae2-b6602c41fe4f.png')"
       }}
     >
       {/* Back Button */}
@@ -47,7 +47,7 @@ const WelcomePage: React.FC = () => {
               <CarouselItem className="h-full">
                 <div className="h-full">
                   <img 
-                    src="https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=1200&h=600&fit=crop" 
+                    src="/lovable-uploads/219a145d-582e-4803-8229-8df91928109c.png" 
                     alt="Welcome English"
                     className="w-full h-full object-contain"
                   />
@@ -56,8 +56,17 @@ const WelcomePage: React.FC = () => {
               <CarouselItem className="h-full">
                 <div className="h-full">
                   <img 
-                    src="https://images.unsplash.com/photo-1564501049412-61c2a3083791?w=1200&h=600&fit=crop" 
+                    src="/lovable-uploads/952fb5b2-8ca9-457b-99d9-6dc6d5c934e4.png" 
                     alt="Bienvenida Español"
+                    className="w-full h-full object-contain"
+                  />
+                </div>
+              </CarouselItem>
+              <CarouselItem className="h-full">
+                <div className="h-full">
+                  <img 
+                    src="/lovable-uploads/c8d51e24-f711-41a0-9920-b6feaa0ab8d0.png" 
+                    alt="Hilton Honors"
                     className="w-full h-full object-contain"
                   />
                 </div>
