@@ -13,10 +13,6 @@ import { CMSProvider } from '@/contexts/CMSContext';
 const CMSContent: React.FC = () => {
   const [currentView, setCurrentView] = useState('dashboard');
 
-  // Mock user with admin permissions for development
-  const mockCanEdit = () => true;
-  const mockCanAdmin = () => true;
-
   const renderContent = () => {
     switch (currentView) {
       case 'dashboard':
@@ -33,8 +29,6 @@ const CMSContent: React.FC = () => {
         return <PlatformManager />;
       case 'settings':
         return <SettingsManager />;
-      case 'users':
-        return <div className="p-6"><h1>Gestión de Usuarios (Próximamente)</h1></div>;
       case 'analytics':
         return <div className="p-6"><h1>Analíticas (Próximamente)</h1></div>;
       default:

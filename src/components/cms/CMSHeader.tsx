@@ -1,40 +1,11 @@
 
 import React from 'react';
-import { Bell, Search, User, Settings, ChevronDown } from 'lucide-react';
+import { Bell, Search, Settings } from 'lucide-react';
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 
 export const CMSHeader: React.FC = () => {
-  // Mock user data for development
-  const mockProfile = {
-    email: 'admin@sistema.com',
-    full_name: 'Administrador',
-    role: 'admin'
-  };
-
-  const getRoleColor = (role: string) => {
-    switch (role) {
-      case 'admin':
-        return 'bg-red-100 text-red-800';
-      case 'editor':
-        return 'bg-blue-100 text-blue-800';
-      case 'viewer':
-        return 'bg-gray-100 text-gray-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
-    }
-  };
-
   return (
     <header className="bg-white border-b border-gray-200 p-4">
       <div className="flex items-center justify-between">
@@ -56,30 +27,9 @@ export const CMSHeader: React.FC = () => {
             <Bell className="w-4 h-4" />
           </Button>
           
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="flex items-center gap-2">
-                <User className="w-4 h-4" />
-                <span className="hidden md:inline">{mockProfile.full_name}</span>
-                <Badge variant="secondary" className={getRoleColor(mockProfile.role)}>
-                  {mockProfile.role}
-                </Badge>
-                <ChevronDown className="w-4 h-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56">
-              <DropdownMenuLabel>Mi Cuenta</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem>
-                <User className="mr-2 h-4 w-4" />
-                <span>Perfil</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Settings className="mr-2 h-4 w-4" />
-                <span>Configuración</span>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <Button variant="outline" size="icon">
+            <Settings className="w-4 h-4" />
+          </Button>
         </div>
       </div>
     </header>
