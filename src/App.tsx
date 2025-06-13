@@ -13,6 +13,7 @@ import WelcomePage from "./pages/WelcomePage";
 import HotelExperiencePage from "./pages/HotelExperiencePage";
 import NotFound from "./pages/NotFound";
 import { CMSPageRenderer } from "./components/cms/CMSPageRenderer";
+import { CMSProvider } from "./contexts/CMSContext";
 
 const queryClient = new QueryClient();
 
@@ -24,25 +25,25 @@ const App = () => {
       <TooltipProvider>
         <Toaster />
         <Sonner />
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/cms/*" element={<CMS />} />
-            <Route path="/sample" element={<SamplePage />} />
-            <Route path="/hilton" element={<HiltonDemo />} />
-            <Route path="/flights" element={<FlightStatus />} />
-            <Route path="/welcome" element={<WelcomePage />} />
-            <Route path="/hotel-experience" element={<HotelExperiencePage />} />
-            
-            {/* CMS Dynamic Pages */}
-            <Route path="/home" element={<CMSPageRenderer pageSlug="home" />} />
-            <Route path="/about" element={<CMSPageRenderer pageSlug="about" />} />
-            <Route path="/contact" element={<CMSPageRenderer pageSlug="contact" />} />
-            
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
+        <CMSProvider>
+          <BrowserRouter>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/cms/*" element={<CMS />} />
+              <Route path="/sample" element={<SamplePage />} />
+              <Route path="/hilton" element={<HiltonDemo />} />
+              <Route path="/flights" element={<FlightStatus />} />
+              <Route path="/welcome" element={<WelcomePage />} />
+              <Route path="/hotel-experience" element={<HotelExperiencePage />} />
+              
+              {/* Dynamic CMS Pages - This will handle all pages created in the CMS */}
+              <Route path="/:pageSlug" element={<CMSPageRenderer />} />
+              
+              {/* 404 Page - Must be last */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+        </CMSProvider>
       </TooltipProvider>
     </QueryClientProvider>
   );

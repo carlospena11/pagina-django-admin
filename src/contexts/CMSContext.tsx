@@ -74,9 +74,10 @@ interface CMSContextType {
   rooms: Room[];
   platforms: Platform[];
   events: Event[];
-  addPage: (page: Omit<Page, 'id'>) => void;
+  addPage: (page: Omit<Page, 'id'>) => Page;
   updatePage: (id: string, updates: Partial<Page>) => void;
   deletePage: (id: string) => void;
+  getPageBySlug: (slug: string) => Page | undefined;
   addMedia: (media: Omit<MediaItem, 'id'>) => void;
   deleteMedia: (id: string) => void;
   addHotel: (hotel: Omit<Hotel, 'id'>) => void;
@@ -117,7 +118,20 @@ export const CMSProvider: React.FC<CMSProviderProps> = ({ children }) => {
       author: 'Admin',
       lastModified: '2024-01-15',
       views: 1250,
-      content: '<h1>Bienvenido a nuestro sitio web</h1><p>Esta es la página principal.</p>'
+      content: `
+        <div class="min-h-screen bg-gradient-to-br from-blue-600 to-purple-700">
+          <div class="container mx-auto px-4 py-16">
+            <div class="text-center text-white">
+              <h1 class="text-6xl font-bold mb-6">Bienvenido a Nuestro Sitio Web</h1>
+              <p class="text-xl mb-8 max-w-3xl mx-auto">Esta es la página principal creada con nuestro sistema de gestión de contenido. Aquí puedes mostrar información importante sobre tu negocio o proyecto.</p>
+              <div class="space-x-4">
+                <a href="/about" class="bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors">Sobre Nosotros</a>
+                <a href="/contact" class="border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-blue-600 transition-colors">Contacto</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      `
     },
     {
       id: '2',
@@ -137,7 +151,39 @@ export const CMSProvider: React.FC<CMSProviderProps> = ({ children }) => {
       author: 'Editor',
       lastModified: '2024-01-14',
       views: 567,
-      content: '<h1>Sobre Nosotros</h1><p>Información sobre la empresa.</p>'
+      content: `
+        <div class="min-h-screen bg-gray-50">
+          <div class="container mx-auto px-4 py-16">
+            <div class="max-w-4xl mx-auto">
+              <h1 class="text-5xl font-bold text-gray-900 mb-8 text-center">Sobre Nosotros</h1>
+              <div class="grid md:grid-cols-2 gap-12 items-center">
+                <div>
+                  <h2 class="text-3xl font-semibold mb-6 text-gray-800">Nuestra Historia</h2>
+                  <p class="text-lg text-gray-600 mb-6">Somos una empresa dedicada a crear soluciones web innovadoras. Desde nuestros inicios, hemos trabajado para ofrecer las mejores herramientas de gestión de contenido.</p>
+                  <p class="text-lg text-gray-600 mb-6">Nuestro equipo está formado por profesionales apasionados por la tecnología y el diseño, comprometidos con la excelencia en cada proyecto.</p>
+                  <div class="space-y-4">
+                    <div class="flex items-center">
+                      <span class="w-2 h-2 bg-blue-600 rounded-full mr-3"></span>
+                      <span class="text-gray-700">Experiencia en desarrollo web</span>
+                    </div>
+                    <div class="flex items-center">
+                      <span class="w-2 h-2 bg-blue-600 rounded-full mr-3"></span>
+                      <span class="text-gray-700">Soluciones personalizadas</span>
+                    </div>
+                    <div class="flex items-center">
+                      <span class="w-2 h-2 bg-blue-600 rounded-full mr-3"></span>
+                      <span class="text-gray-700">Soporte técnico especializado</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="text-center">
+                  <img src="https://images.unsplash.com/photo-1522071820081-009f0129c71c" alt="Nuestro equipo" class="rounded-lg shadow-xl w-full h-96 object-cover">
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      `
     },
     {
       id: '4',
@@ -147,7 +193,70 @@ export const CMSProvider: React.FC<CMSProviderProps> = ({ children }) => {
       author: 'Writer',
       lastModified: '2024-01-12',
       views: 2340,
-      content: '<h1>Contacto</h1><p>Información de contacto.</p>'
+      content: `
+        <div class="min-h-screen bg-white">
+          <div class="container mx-auto px-4 py-16">
+            <div class="max-w-4xl mx-auto">
+              <h1 class="text-5xl font-bold text-gray-900 mb-8 text-center">Contáctanos</h1>
+              <p class="text-xl text-gray-600 text-center mb-12">Estamos aquí para ayudarte. No dudes en ponerte en contacto con nosotros.</p>
+              
+              <div class="grid md:grid-cols-2 gap-12">
+                <div>
+                  <h2 class="text-2xl font-semibold mb-6">Información de Contacto</h2>
+                  <div class="space-y-4">
+                    <div class="flex items-center">
+                      <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mr-4">
+                        <span class="text-blue-600 font-bold">📧</span>
+                      </div>
+                      <div>
+                        <p class="font-semibold">Email</p>
+                        <p class="text-gray-600">contacto@miempresa.com</p>
+                      </div>
+                    </div>
+                    <div class="flex items-center">
+                      <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mr-4">
+                        <span class="text-blue-600 font-bold">📱</span>
+                      </div>
+                      <div>
+                        <p class="font-semibold">Teléfono</p>
+                        <p class="text-gray-600">+1 (555) 123-4567</p>
+                      </div>
+                    </div>
+                    <div class="flex items-center">
+                      <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mr-4">
+                        <span class="text-blue-600 font-bold">📍</span>
+                      </div>
+                      <div>
+                        <p class="font-semibold">Dirección</p>
+                        <p class="text-gray-600">123 Calle Principal<br>Ciudad, Estado 12345</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div>
+                  <h2 class="text-2xl font-semibold mb-6">Envíanos un Mensaje</h2>
+                  <form class="space-y-4">
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700 mb-1">Nombre</label>
+                      <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Tu nombre">
+                    </div>
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                      <input type="email" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="tu@email.com">
+                    </div>
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700 mb-1">Mensaje</label>
+                      <textarea rows="4" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Tu mensaje"></textarea>
+                    </div>
+                    <button type="submit" class="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors">Enviar Mensaje</button>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      `
     },
     {
       id: '5',
@@ -392,6 +501,7 @@ export const CMSProvider: React.FC<CMSProviderProps> = ({ children }) => {
       id: (pages.length + 1).toString(),
     };
     setPages([...pages, newPage]);
+    return newPage;
   };
 
   const updatePage = (id: string, updates: Partial<Page>) => {
@@ -402,6 +512,10 @@ export const CMSProvider: React.FC<CMSProviderProps> = ({ children }) => {
 
   const deletePage = (id: string) => {
     setPages(pages.filter(page => page.id !== id));
+  };
+
+  const getPageBySlug = (slug: string) => {
+    return pages.find(page => page.slug === slug && page.status === 'published');
   };
 
   const addMedia = (mediaItem: Omit<MediaItem, 'id'>) => {
@@ -502,6 +616,7 @@ export const CMSProvider: React.FC<CMSProviderProps> = ({ children }) => {
       addPage,
       updatePage,
       deletePage,
+      getPageBySlug,
       addMedia,
       deleteMedia,
       addHotel,

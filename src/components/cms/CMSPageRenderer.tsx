@@ -1,15 +1,18 @@
 
 import React from 'react';
+import { useParams } from 'react-router-dom';
 import { useCMS } from '@/contexts/CMSContext';
 import NotFound from '@/pages/NotFound';
 
-interface CMSPageRendererProps {
-  pageSlug: string;
-}
+export const CMSPageRenderer: React.FC = () => {
+  const { pageSlug } = useParams<{ pageSlug: string }>();
+  const { getPageBySlug } = useCMS();
+  
+  if (!pageSlug) {
+    return <NotFound />;
+  }
 
-export const CMSPageRenderer: React.FC<CMSPageRendererProps> = ({ pageSlug }) => {
-  const { pages } = useCMS();
-  const page = pages.find(p => p.slug === pageSlug && p.status === 'published');
+  const page = getPageBySlug(pageSlug);
 
   if (!page) {
     return <NotFound />;
@@ -29,6 +32,12 @@ export const CMSPageRenderer: React.FC<CMSPageRendererProps> = ({ pageSlug }) =>
     // Not JSON, treat as HTML
     isVisualContent = false;
   }
+
+  // Update page views (in a real app, this would be handled server-side)
+  React.useEffect(() => {
+    // This is just for demo purposes - in production you'd track this properly
+    console.log(`Viewing page: ${page.title} (${page.slug})`);
+  }, [page]);
 
   if (isVisualContent && elements.length > 0) {
     // Render visual editor content
